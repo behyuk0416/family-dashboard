@@ -63,7 +63,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .bigbtn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--grass-d)}
 .bigbtn.gold{background:var(--gold);color:var(--ink);box-shadow:0 6px 0 var(--gold-d)}
 
-.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .tl{border-radius:20px;padding:14px 16px;background:var(--card);border:3px solid var(--line);display:flex;flex-direction:column;gap:6px;text-align:left;min-width:0}
 .tl .t{font-size:14px;color:var(--ink2);font-weight:800}
 .tl .n{font-family:var(--f-display);font-size:22px}
@@ -107,7 +107,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .sis-btn{border-radius:18px;background:#FFF0F3;border:3px solid #FFC2CE;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .sis-btn .ic{font-size:30px}
 .sis-btn b{font-family:var(--f-display);font-weight:400;font-size:20px}
-.sis-btn small{font-size:13px;color:var(--ink2)}
+.sis-btn small{font-size:12px;color:var(--ink2);white-space:nowrap}
 .sis-btn:active{background:#FFD9E1}
 .badge-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .medal{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:26px;background:var(--mute);border:3px dashed var(--line);filter:grayscale(1);opacity:.55}
@@ -182,7 +182,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 @media (max-width:900px){
   .home-top,.home-bottom{grid-template-columns:1fr}
   .srow{grid-template-columns:1fr 1fr}
-  .timeline{grid-template-columns:repeat(2,1fr)}
+
 }
 @media (max-width:640px){
   .app{grid-template-columns:1fr;grid-template-rows:1fr auto}
@@ -214,7 +214,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 (() => {
 const KEY = 'familyQuest.v1';
 const DEFAULT_BLOCKS = [
-  {id:'morning', name:'아침 출발 준비', start:'07:00', end:'08:20', missions:[
+  {id:'morning', name:'아침 출발 준비', start:'07:00', end:'08:20', days:[1,2,3,4,5], missions:[
     {id:'wake', ic:'🛏️', nm:'일어나서 이불 정리', pt:10},
     {id:'wash', ic:'🪥', nm:'세수하고 양치하기', pt:10},
     {id:'dress', ic:'👕', nm:'옷 갈아입기', pt:10},
@@ -222,18 +222,31 @@ const DEFAULT_BLOCKS = [
     {id:'bag', ic:'🎒', nm:'가방·물병 챙기기', pt:10},
     {id:'go', ic:'👟', nm:'신발 신고 출발!', pt:10},
   ]},
-  {id:'after', name:'하교 후 미션', start:'13:30', end:'17:00', missions:[
+  {id:'after', name:'하교 후 미션', start:'13:30', end:'17:00', days:[1,2,3,4,5], missions:[
     {id:'handwash', ic:'🧼', nm:'손 씻고 가방 정리', pt:10},
     {id:'homework', ic:'✏️', nm:'학교 과제 끝내기', pt:20},
     {id:'study', ic:'📘', nm:'일일공부 1장', pt:20},
     {id:'read', ic:'📚', nm:'책 읽기 20분', pt:20},
   ]},
-  {id:'dinner', name:'저녁 시간', start:'18:00', end:'19:30', missions:[
+  {id:'wkmorning', name:'주말 아침', start:'08:00', end:'10:00', days:[0,6], missions:[
+    {id:'wk_wake', ic:'🛏️', nm:'일어나서 이불 정리', pt:10},
+    {id:'wk_wash', ic:'🪥', nm:'세수하고 양치하기', pt:10},
+    {id:'wk_bfast', ic:'🥞', nm:'아침밥 다 먹기', pt:10},
+    {id:'wk_dress', ic:'👕', nm:'옷 갈아입기', pt:10},
+  ]},
+  {id:'wkday', name:'주말 낮 미션', start:'10:00', end:'17:00', days:[0,6], missions:[
+    {id:'wk_read', ic:'📚', nm:'책 읽기 30분', pt:20},
+    {id:'wk_study', ic:'📘', nm:'일일공부 1장', pt:20},
+    {id:'wk_room', ic:'🧹', nm:'내 방 정리하기', pt:15},
+    {id:'wk_play', ic:'⚽', nm:'밖에서 신나게 놀기', pt:15},
+    {id:'wk_help', ic:'🧺', nm:'집안일 하나 돕기', pt:15},
+  ]},
+  {id:'dinner', name:'저녁 시간', start:'18:00', end:'19:30', days:[0,1,2,3,4,5,6], missions:[
     {id:'dinner', ic:'🍽️', nm:'저녁밥 맛있게 먹기', pt:15},
     {id:'tidy', ic:'🧸', nm:'장난감 정리하기', pt:10},
     {id:'sister', ic:'👶', nm:'동생이랑 놀아주기', pt:10},
   ]},
-  {id:'night', name:'잠자리 준비', start:'20:00', end:'21:00', missions:[
+  {id:'night', name:'잠자리 준비', start:'20:00', end:'21:00', days:[0,1,2,3,4,5,6], missions:[
     {id:'shower', ic:'🛁', nm:'씻기', pt:10},
     {id:'brush', ic:'🦷', nm:'자기 전 양치', pt:10},
     {id:'tomorrow', ic:'📝', nm:'내일 준비물 챙기기', pt:10},
@@ -271,6 +284,17 @@ function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, b
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || blank(); } catch(e){ S = blank(); }
 S = Object.assign(blank(), S);
+// migrate v1 data: blocks had no day rules and no weekend blocks
+if(S.blocks.some(b=>!b.days)){
+  const def=Object.fromEntries(DEFAULT_BLOCKS.map(b=>[b.id,b]));
+  S.blocks.forEach(b=>{ if(!b.days) b.days=(def[b.id]?def[b.id].days:[0,1,2,3,4,5,6]).slice(); });
+  DEFAULT_BLOCKS.forEach((b,i)=>{ if(!S.blocks.some(x=>x.id===b.id)) S.blocks.splice(Math.min(i,S.blocks.length),0,JSON.parse(JSON.stringify(b))); });
+  save();
+}
+const wdOf=k=>{ const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d).getDay(); };
+const blocksFor=wd=>S.blocks.filter(b=>b.days.includes(wd)).sort((a,b)=>toMin(a.start)-toMin(b.start));
+const todayBlocks=()=>blocksFor(new Date().getDay());
+const dayLabel=ds=>{ const s=[...ds].sort().join(''); return s==='0123456'?'매일':s==='12345'?'평일':s==='06'?'주말':ds.slice().sort((a,b)=>((a+6)%7)-((b+6)%7)).map(w=>'일월화수목금토'[w]).join('·'); };
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
 // ---------- weather (Open-Meteo, no key) ----------
@@ -327,16 +351,18 @@ function blockStatus(b, day=today(), isToday=true){
 const ST_LABEL={upcoming:'곧 시작', active:'지금 진행 중', clear:'시간 안에 클리어!', late:'완료', missed:'시간 지남'};
 function currentBlock(){
   const n=nowMin();
-  const act=S.blocks.find(b=>n>=toMin(b.start)&&n<=toMin(b.end));
+  const tb=todayBlocks();
+  const act=tb.find(b=>n>=toMin(b.start)&&n<=toMin(b.end));
   if(act) return act;
-  return S.blocks.find(b=>n<toMin(b.start)) || null;
+  return tb.find(b=>n<toMin(b.start)) || null;
 }
 
 function streak(){
   let c=0; const d=new Date();
   for(let i=0;i<60;i++){
     const day=S.days[dkey(d)];
-    if(day && day.chest && day.chest.morning) c++;
+    const fb=blocksFor(d.getDay())[0];
+    if(day && day.chest && fb && day.chest[fb.id]) c++;
     else if(i>0) break;
     d.setDate(d.getDate()-1);
   }
@@ -348,9 +374,9 @@ function checkBadges(){
   const earn=[];
   const total=days.reduce((a,d)=>a+Object.keys(d.done).length,0);
   if(total>=1) earn.push('first');
-  if(days.some(d=>d.chest&&d.chest.morning)) earn.push('morning');
+  if(days.some(d=>d.chest&&(d.chest.morning||d.chest.wkmorning))) earn.push('morning');
   if(days.some(d=>d.chest&&d.chest.after)) earn.push('study');
-  if(days.some(d=>S.blocks.every(b=>b.missions.every(m=>d.done[m.id])))) earn.push('allclear');
+  if(Object.entries(S.days).some(([k,d])=>{const bs=blocksFor(wdOf(k)); return bs.length&&bs.every(b=>b.missions.every(m=>d.done[m.id]));})) earn.push('allclear');
   if(days.filter(d=>d.done.read).length>=5) earn.push('reader5');
   const st=streak(); if(st>=3) earn.push('streak3'); if(st>=7) earn.push('streak7');
   if(days.filter(d=>d.done.sister).length>=5) earn.push('kind');
@@ -408,11 +434,11 @@ function renderHome(){
   } else {
     nq=`<div class="panel now-quest"><div class="label">오늘의 퀘스트</div><h2>오늘 미션은 모두 끝났어</h2><p class="note">푹 자고 내일 또 모험하자. 보상 화면에서 코인을 써볼까?</p><button class="bigbtn gold" data-go="reward">🎁 보상 보러 가기</button></div>`;
   }
-  const tl=S.blocks.map(b=>{const st=blockStatus(b);return `<button class="tl ${st.st}" data-open="${b.id}">
+  const tl=todayBlocks().map(b=>{const st=blockStatus(b);return `<button class="tl ${st.st}" data-open="${b.id}">
       <span class="t num">${b.start} – ${b.end}</span><span class="n">${esc(b.name)}</span>
       <span class="bar"><i style="width:${st.done/st.total*100}%"></i></span><span class="pill">${ST_LABEL[st.st]} · ${st.done}/${st.total}</span></button>`;}).join('');
   const sk=dkey(d); const sis=S.sis[sk]||{};
-  const since=t=>{ if(!t) return '오늘 기록 없음'; const m=Math.round((Date.now()-t)/60000); return m<60?`${m}분 전`:`${Math.floor(m/60)}시간 ${m%60}분 전`; };
+  const since=t=>{ if(!t) return '기록 없음'; const m=Math.round((Date.now()-t)/60000); return m<60?`${m}분 전`:`${Math.floor(m/60)}시간 ${m%60}분 전`; };
   const sb=(k,ic,nm)=>{const arr=sis[k]||[];return `<button class="sis-btn" data-sis="${k}"><span class="ic">${ic}</span><b>${nm} <span class="num">${arr.length}</span></b><small>${since(arr[arr.length-1])}</small></button>`;};
   const ts=todaySchedule();
   const sched=ts.length?`<ul>${ts.map(x=>`<li class="${x.past?'past':''} ${x.next?'next':''}"><span class="tm num">${x.time}</span><span class="tx">${esc(x.text)}<small>${esc(x.who)}</small></span><span class="cd num">${x.past?'지남':fmtLeft(x.left)}</span></li>`).join('')}</ul>`:`<p class="empty">오늘은 정해진 일정이 없어요. 부모 모드에서 추가할 수 있어요.</p>`;
@@ -429,7 +455,7 @@ function renderHome(){
     <div class="home-bottom">
       <div class="panel sched"><h3>오늘 가족 일정</h3>${sched}</div>
       <div class="panel sis"><h3>${esc(S.sisName)} 기록 <span class="label">· 16개월</span></h3>
-        <div class="sis-btns">${sb('meal','🍼','밥·우유')}${sb('nap','😴','낮잠')}${sb('diaper','🧷','기저귀')}</div></div>
+        <div class="sis-btns">${sb('meal','🍼','식사')}${sb('nap','😴','낮잠')}${sb('diaper','🧷','기저귀')}</div></div>
       <div class="panel badges-mini"><h3>모은 배지 <span class="label num">· ${S.badges.length}/${BADGES.length}</span></h3><div class="badge-row">${medals}</div></div>
     </div>
   </section>`;
@@ -437,10 +463,12 @@ function renderHome(){
 
 function renderQuest(){
   const day=today();
-  if(!questTab){ const cb=currentBlock(); questTab=(cb||S.blocks[0]).id; }
-  const b=S.blocks.find(x=>x.id===questTab)||S.blocks[0];
+  const tb=todayBlocks();
+  if(!questTab){ const cb=currentBlock(); questTab=(cb||tb[0]).id; }
+  if(!tb.length){ main.innerHTML=`<section class="screen">${hud()}<div class="panel"><h2>오늘은 쉬는 날이야</h2><p class="note">오늘 요일에 정해진 미션이 없어요. 부모 모드에서 요일을 정할 수 있어요.</p></div></section>`; return; }
+  const b=tb.find(x=>x.id===questTab)||tb[0];
   const st=blockStatus(b);
-  const tabs=S.blocks.map(x=>`<button class="tab" role="tab" aria-selected="${x.id===b.id}" data-tab="${x.id}"><b>${esc(x.name)}</b><span class="num">${x.start} – ${x.end} · ${blockStatus(x).done}/${x.missions.length}</span></button>`).join('');
+  const tabs=tb.map(x=>`<button class="tab" role="tab" aria-selected="${x.id===b.id}" data-tab="${x.id}"><b>${esc(x.name)}</b><span class="num">${x.start} – ${x.end} · ${blockStatus(x).done}/${x.missions.length}</span></button>`).join('');
   const cards=b.missions.map(m=>{const d=day.done[m.id];return `<div class="m ${d?'done':''}" role="button" tabindex="0" data-m="${m.id}">
       <span class="ic">${m.ic}</span><span class="nm">${esc(m.nm)}</span><span class="pt">+${m.pt} 코인${d?'':` · 제시간 +${ON_TIME_BONUS}`}</span>
       ${d?`<span class="stamp ${d.onTime?'':'late'}">${d.onTime?'성공!':'완료'}</span><button class="undo" data-undo="${m.id}">되돌리기</button>`:''}</div>`;}).join('');
@@ -484,13 +512,13 @@ function renderParent(){
     $('#pGo').onclick=()=>{ if(Number($('#pAns').value)===a*b){parentOk=true;renderParent();} else $('#pErr').textContent='답이 달라요. 다시 입력해 주세요.'; };
     return;
   }
-  const times=S.blocks.map(b=>`<div class="field"><span class="label">${esc(b.name)}</span><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div></div>`).join('');
+  const times=S.blocks.map(b=>`<div class="field"><span class="label">${esc(b.name)} · <span id="bl_${b.id}">${dayLabel(b.days)}</span></span><div class="days" style="margin-bottom:4px">${[1,2,3,4,5,6,0].map(w=>`<button class="day" data-bday="${b.id}:${w}" aria-pressed="${b.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div></div>`).join('');
   main.innerHTML=`<section class="screen">
     <h2 style="font-size:30px">부모 모드</h2>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">이름</h3>
       <div class="form"><div class="field"><label class="label" for="kidName">아들 이름(호칭)</label><input id="kidName" value="${esc(S.kidName)}"></div>
       <div class="field"><label class="label" for="sisName">딸 이름(호칭)</label><input id="sisName" value="${esc(S.sisName)}"></div></div></div>
-    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">시간대</h3><div class="form">${times}</div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">시간대와 요일</h3><p class="note">요일을 눌러 그 시간대 미션이 나오는 날을 정해요. 평일엔 등교·하교 미션, 주말엔 주말 미션이 나와요.</p><div class="form">${times}</div>
       <p class="note">미션을 시간 안에 모두 끝내면 미션마다 +${ON_TIME_BONUS} 코인, 시간대를 다 끝내면 보물상자 +${CHEST} 코인을 줘요. 시간이 지나도 기본 코인은 받아요.</p></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">가족 일정</h3>
       <p class="note">요일을 눌러 반복할 날을 고르세요. 홈 화면에는 오늘 요일의 일정만 보여요.</p>
@@ -508,6 +536,7 @@ function renderParent(){
     <div class="trow" style="flex-wrap:wrap"><button class="btn primary" id="pSave">저장</button><button class="btn danger" id="pResetDay">오늘 체크 초기화</button><button class="btn danger" id="pResetAll">전체 초기화</button><button class="btn" id="pLock">잠그기</button></div>
     <p class="note">기록은 이 태블릿의 브라우저에만 저장돼요. 브라우저 데이터를 지우면 함께 사라져요.</p>
   </section>`;
+  main.querySelectorAll('[data-bday]').forEach(x=>x.onclick=()=>{ const [id,w]=x.dataset.bday.split(':'); const b=S.blocks.find(y=>y.id===id); const k=b.days.indexOf(+w); k<0?b.days.push(+w):b.days.splice(k,1); x.setAttribute('aria-pressed',k<0); $('#bl_'+id).textContent=b.days.length?dayLabel(b.days):'쉬는 시간대'; save(); questTab=null; });
   const collect=()=>{ S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
   main.querySelectorAll('[data-sday]').forEach(b=>b.onclick=()=>{ const [i,w]=b.dataset.sday.split(':').map(Number); const ds=S.schedule[i].days; const k=ds.indexOf(w); k<0?ds.push(w):ds.splice(k,1); b.setAttribute('aria-pressed',k<0); });
   main.querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{ collect(); S.schedule.splice(Number(b.dataset.sdel),1); save(); renderParent(); });
