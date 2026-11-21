@@ -105,6 +105,17 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .wx .now{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:44px;line-height:1}
 .wx .now .ic{font-size:48px}
 .wx .sub{color:#C9D4EE;font-weight:600;font-size:16px}
+.wx .tmr{color:#fff;font-weight:700;font-size:17px;background:rgba(255,255,255,.12);padding:3px 12px;border-radius:999px}
+.todos{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.todo{display:flex;align-items:center;gap:8px;min-height:52px;padding:6px 16px 6px 8px;border-radius:999px;background:var(--card);border:3px solid var(--line);font-weight:800;font-size:18px;text-align:left}
+.todo .bx{width:32px;height:32px;border-radius:50%;border:3px solid var(--line);display:grid;place-items:center;font-size:18px;color:#fff;flex:none}
+.todo.on{background:#E6F9EE;border-color:var(--grass)}
+.todo.on .bx{background:var(--grass);border-color:var(--grass-d)}
+.todo.on span:last-child{text-decoration:line-through;color:var(--ink2)}
+.sched .sub-h{font-family:var(--f-display);font-size:20px;margin-top:14px}
+#night{position:fixed;inset:0;background:#000;z-index:50;display:grid;place-items:center;cursor:pointer}
+#night .nclk{font-family:var(--f-display);font-size:clamp(80px,14vw,180px);color:#2A2A35;font-variant-numeric:tabular-nums;text-align:center;line-height:1}
+#night .nsub{display:block;font-family:var(--f-body);font-size:18px;color:#24242C;margin-top:12px;font-weight:600}
 .wx .tip{background:var(--gold);color:var(--ink);font-family:var(--f-display);font-size:17px;padding:3px 12px;border-radius:999px}
 .wx .off{color:#93A3C8;font-size:14px;font-weight:600;max-width:22ch}
 .sched h3{font-size:24px}
@@ -247,6 +258,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="modalRoot"></div>
+<div id="night" hidden><div class="nclk" id="nclk"></div></div>
 
 <script>
 (() => {
@@ -313,7 +325,7 @@ const BADGES = [
 ];
 
 // ---------- state ----------
-function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS)), days:{}, sis:{}, redeemed:[], badges:[], rewards:JSON.parse(JSON.stringify(REWARDS)), img:{},
+function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS)), days:{}, sis:{}, redeemed:[], badges:[], rewards:JSON.parse(JSON.stringify(REWARDS)), img:{}, todos:[{id:'t1',text:'분리수거 (예시)'},{id:'t2',text:'막내 영양제 (예시)'},{id:'t3',text:'아들 알림장 확인'}], night:{on:true,start:'22:00',end:'07:00'}, todoDone:{},
   schedule:[
     {id:'s1', time:'19:00', who:'아빠', text:'퇴근해서 집 도착 (예시)', days:[1,2,3,4,5]},
     {id:'s2', time:'16:00', who:'아들', text:'학원 가는 날 (예시)', days:[2,4]},
@@ -330,6 +342,9 @@ if(S.blocks.some(b=>!b.days)){
   save();
 }
 if(!S.img) S.img={};
+if(!S.todos) S.todos=blank().todos;
+if(!S.night) S.night=blank().night;
+if(!S.todoDone) S.todoDone={};
 const wdOf=k=>{ const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d).getDay(); };
 const ms=(b,wd)=>b.missions.filter(m=>!m.days||m.days.includes(wd));
 const blocksFor=wd=>S.blocks.filter(b=>b.days.includes(wd)&&ms(b,wd).length).sort((a,b)=>toMin(a.start)-toMin(b.start));
@@ -340,13 +355,14 @@ function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} 
 // ---------- weather (Open-Meteo, no key) ----------
 const WMO={0:['☀️','맑음'],1:['🌤️','대체로 맑음'],2:['⛅','구름 조금'],3:['☁️','흐림'],45:['🌫️','안개'],48:['🌫️','안개'],51:['🌦️','이슬비'],53:['🌦️','이슬비'],55:['🌦️','이슬비'],61:['🌧️','비'],63:['🌧️','비'],65:['🌧️','많은 비'],66:['🌧️','어는 비'],67:['🌧️','어는 비'],71:['🌨️','눈'],73:['🌨️','눈'],75:['❄️','많은 눈'],77:['🌨️','싸락눈'],80:['🌦️','소나기'],81:['🌧️','소나기'],82:['⛈️','강한 소나기'],85:['🌨️','눈 소나기'],86:['🌨️','눈 소나기'],95:['⛈️','뇌우'],96:['⛈️','뇌우'],99:['⛈️','뇌우']};
 let WX=null, wxState='loading';
-try{ const c=JSON.parse(localStorage.getItem(KEY+'.wx')); if(c && c.lat===S.loc.lat && Date.now()-c.at<3*3600e3){ WX=c; wxState='ok'; } }catch(e){}
+try{ const c=JSON.parse(localStorage.getItem(KEY+'.wx')); if(c && c.lat===S.loc.lat && c.tm && Date.now()-c.at<3*3600e3){ WX=c; wxState='ok'; } }catch(e){}
 async function loadWeather(){
   try{
-    const u=`https://api.open-meteo.com/v1/forecast?latitude=${S.loc.lat}&longitude=${S.loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`;
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${S.loc.lat}&longitude=${S.loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=2`;
     const r=await fetch(u); if(!r.ok) throw 0; const j=await r.json();
     WX={at:Date.now(), lat:S.loc.lat, t:Math.round(j.current.temperature_2m), code:j.current.weather_code,
-        hi:Math.round(j.daily.temperature_2m_max[0]), lo:Math.round(j.daily.temperature_2m_min[0]), rain:j.daily.precipitation_probability_max[0]};
+        hi:Math.round(j.daily.temperature_2m_max[0]), lo:Math.round(j.daily.temperature_2m_min[0]), rain:j.daily.precipitation_probability_max[0],
+        tm:{hi:Math.round(j.daily.temperature_2m_max[1]), lo:Math.round(j.daily.temperature_2m_min[1]), rain:j.daily.precipitation_probability_max[1], code:j.daily.weather_code[1]}};
     wxState='ok'; try{ localStorage.setItem(KEY+'.wx', JSON.stringify(WX)); }catch(e){}
   }catch(e){ if(!WX) wxState='off'; }
   if(view==='home') render();
@@ -354,9 +370,10 @@ async function loadWeather(){
 function wxHtml(){
   if(wxState==='ok' && WX){
     const [ic,nm]=WMO[WX.code]||['🌡️',''];
-    const tips=[]; if(WX.rain>=50) tips.push('☂️ 우산 챙기기!'); if(WX.lo<=2) tips.push('🧤 따뜻하게 입기'); else if(WX.hi>=28) tips.push('💧 물 많이 마시기');
+    const tips=[]; if(WX.rain>=50 && new Date().getHours()<17) tips.push('☂️ 우산 챙기기!'); if(WX.tm && WX.tm.rain>=50 && new Date().getHours()>=17) tips.push('☂️ 내일 우산 챙기기!'); if(WX.lo<=2) tips.push('🧤 따뜻하게 입기'); else if(WX.hi>=28) tips.push('💧 물 많이 마시기');
     return `<div class="wx"><div class="now"><span class="ic">${ic}</span><span class="num">${WX.t}°</span></div>
       <div class="sub">${esc(S.loc.name)} · ${nm} · <span class="num">${WX.lo}° / ${WX.hi}°</span> · 비 <span class="num">${WX.rain??0}%</span></div>
+      ${WX.tm?`<div class="tmr">내일 ${(WMO[WX.tm.code]||['🌡️'])[0]} <span class="num">${WX.tm.lo}° / ${WX.tm.hi}°</span> · 비 <span class="num">${WX.tm.rain??0}%</span></div>`:''}
       ${tips.map(t=>`<span class="tip">${t}</span>`).join('')}</div>`;
   }
   if(wxState==='loading') return `<div class="wx"><div class="off">날씨 불러오는 중…</div></div>`;
@@ -370,6 +387,9 @@ function todaySchedule(){
   const next=list.find(x=>toMin(x.time)>=n);
   return list.map(x=>({...x, past:toMin(x.time)<n, next:x===next, left:toMin(x.time)-n}));
 }
+function todoKey(){ const e=toMin(S.night.end||'07:00'); return dkey(new Date(Date.now()-e*60000)); }
+function todoList(){ const k=todoKey(); const done=S.todoDone[k]||{}; return S.todos.map(t=>({...t, on:!!done[t.id]})); }
+function isNight(){ if(!S.night.on) return false; const n=nowMin(), a=toMin(S.night.start), b=toMin(S.night.end); return a>b ? (n>=a||n<b) : (n>=a&&n<b); }
 const fmtLeft=m=>m<=0?'지금':m<60?`${m}분 후`:`${Math.floor(m/60)}시간${m%60?' '+m%60+'분':''} 후`;
 
 const pad = n => String(n).padStart(2,'0');
@@ -535,7 +555,8 @@ function renderHome(){
     ${raceHtml()}
     <div class="timeline">${tl}</div>
     <div class="home-bottom">
-      <div class="panel sched"><h3>오늘 가족 일정</h3>${sched}</div>
+      <div class="panel sched"><h3>오늘 가족 일정</h3>${sched}
+        ${S.todos.length?`<div class="sub-h">가족 할 일</div><div class="todos">${todoList().map(t=>`<button class="todo ${t.on?'on':''}" data-todo="${t.id}"><span class="bx">${t.on?'✓':''}</span><span>${esc(t.text)}</span></button>`).join('')}</div>`:''}</div>
       <div class="panel sis"><h3>${esc(S.sisName)} 기록 <span class="label">· 16개월</span></h3>
         <div class="sis-btns">${sb('meal','🍼','식사')}${sb('nap','😴','낮잠')}${sb('diaper','🧷','기저귀')}</div></div>
       <div class="panel badges-mini"><h3>배지 도감 <span class="label num">· ${S.badges.length}/${BADGES.length}</span></h3><div class="badge-row">${medals}</div></div>
@@ -631,6 +652,15 @@ function renderParent(){
       <p class="note">꾸미기 파일(사진 모음)이나 백업 파일을 가져오면 이 탭에 바로 적용돼요. 백업 파일을 가져오면 지금 기록이 그 파일 내용으로 바뀌어요.</p>
       <div class="trow" style="flex-wrap:wrap"><button class="btn primary" id="ioImport">파일 가져오기</button><button class="btn" id="ioExport">백업 파일 내보내기</button></div>
       <p class="note" id="ioMsg"></p></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">가족 할 일</h3>
+      <p class="note">홈 화면에서 누르면 체크돼요. 체크는 밤 화면이 끝나는 아침(${S.night.end})에 모두 풀려요.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">${S.todos.map((t,i)=>`<div class="trow"><input id="td_${i}" value="${esc(t.text)}" aria-label="할 일" style="font:inherit;font-size:16px;padding:8px 10px;border-radius:10px;border:2px solid var(--line);flex:1;min-width:0;user-select:text;-webkit-user-select:text"><button class="btn danger" data-tdel="${i}">삭제</button></div>`).join('')}</div>
+      <div class="trow"><button class="btn" id="tdAdd">+ 할 일 추가</button></div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">밤 화면</h3>
+      <p class="note">이 시간에는 화면이 까맣게 바뀌고 아주 어두운 시계만 보여요. 화면을 누르면 1분 동안 켜져요.</p>
+      <div class="trow" style="flex-wrap:wrap"><button class="day" style="width:auto;padding:0 14px" id="ntOn" aria-pressed="${S.night.on}">${S.night.on?'켜짐':'꺼짐'}</button>
+        <input type="time" id="ntS" value="${S.night.start}" style="font:inherit;font-size:18px;padding:8px;border-radius:10px;border:2px solid var(--line)"><span>부터</span>
+        <input type="time" id="ntE" value="${S.night.end}" style="font:inherit;font-size:18px;padding:8px;border-radius:10px;border:2px solid var(--line)"><span>까지</span></div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">가족 일정</h3>
       <p class="note">요일을 눌러 반복할 날을 고르세요. 홈 화면에는 오늘 요일의 일정만 보여요.</p>
       <div style="display:flex;flex-direction:column;gap:10px" id="schList">${S.schedule.map((x,i)=>`<div class="sitem"><div class="srow">
@@ -682,7 +712,10 @@ function renderParent(){
         if(j.badgeNames && typeof j.badgeNames==='object'){ S.badgeNames=S.badgeNames||{}; for(const [k,v] of Object.entries(j.badgeNames)) if(BADGES.some(b=>b.id===k) && typeof v==='string') S.badgeNames[k]=v.slice(0,20); }
         if(j.kidName) S.kidName=j.kidName; save(); toast(`사진 ${n}장을 넣었어요`); renderParent(); return; }
       $('#ioMsg').textContent='이 파일에는 가져올 내용이 없어요.'; }; rd.readAsText(file); }; f.click(); };
-  const collect=()=>{ collectME(); S.blocks.forEach(b=>{ const n=$('#n_'+b.id); if(n) b.name=n.value.trim()||'시간대'; const st=$('#s_'+b.id), en=$('#e_'+b.id); if(st&&st.value) b.start=st.value; if(en&&en.value) b.end=en.value; }); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
+  main.querySelectorAll('[data-tdel]').forEach(x=>x.onclick=()=>{ collect(); S.todos.splice(+x.dataset.tdel,1); save(); renderParent(); });
+  $('#tdAdd').onclick=()=>{ collect(); S.todos.push({id:'t'+Date.now(), text:''}); renderParent(); $('#td_'+(S.todos.length-1))?.focus(); };
+  $('#ntOn').onclick=()=>{ collect(); S.night.on=!S.night.on; save(); renderParent(); };
+  const collect=()=>{ collectME(); S.todos.forEach((t,i)=>{ const el=$('#td_'+i); if(el) t.text=el.value.trim()||'할 일'; }); const ns=$('#ntS'), ne=$('#ntE'); if(ns&&ns.value) S.night.start=ns.value; if(ne&&ne.value) S.night.end=ne.value; S.blocks.forEach(b=>{ const n=$('#n_'+b.id); if(n) b.name=n.value.trim()||'시간대'; const st=$('#s_'+b.id), en=$('#e_'+b.id); if(st&&st.value) b.start=st.value; if(en&&en.value) b.end=en.value; }); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
   main.querySelectorAll('[data-sday]').forEach(b=>b.onclick=()=>{ const [i,w]=b.dataset.sday.split(':').map(Number); const ds=S.schedule[i].days; const k=ds.indexOf(w); k<0?ds.push(w):ds.splice(k,1); b.setAttribute('aria-pressed',k<0); });
   main.querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{ collect(); S.schedule.splice(Number(b.dataset.sdel),1); save(); renderParent(); });
   $('#sAdd').onclick=()=>{ collect(); S.schedule.push({id:'s'+Date.now(), time:'18:00', who:'', text:'', days:[1,2,3,4,5]}); renderParent(); const i=S.schedule.length-1; $('#sx_'+i)?.focus(); };
@@ -752,6 +785,8 @@ document.addEventListener('click',e=>{
   const tb=t.closest('[data-tab]'); if(tb){ questTab=tb.dataset.tab; renderQuest(); return; }
   const m=t.closest('[data-m]'); if(m && !m.classList.contains('done')){ complete(m.dataset.m, m); return; }
   const s=t.closest('[data-sis]'); if(s){ sisLog(s.dataset.sis); return; }
+  const td=t.closest('[data-todo]'); if(td){ const k=todoKey(); S.todoDone[k]=S.todoDone[k]||{}; const id=td.dataset.todo; if(S.todoDone[k][id]) delete S.todoDone[k][id]; else { S.todoDone[k][id]=Date.now(); ding(true); }
+    Object.keys(S.todoDone).sort().slice(0,-14).forEach(x=>delete S.todoDone[x]); save(); render(); return; }
 });
 main.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-m]')){e.preventDefault();e.target.click();} });
 
@@ -764,16 +799,22 @@ let lock=null; async function wake(){ try{ if('wakeLock' in navigator && !lock){
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') wake(); });
 document.addEventListener('pointerdown',wake,{once:true});
 
+// night screen: black from night start to end; a tap shows the board for 1 minute
+let nightPeek=0;
+function updateNight(){ const el=$('#night'); const on=isNight() && Date.now()>nightPeek; el.hidden=!on;
+  if(on){ const d=new Date(); $('#nclk').innerHTML=`${pad(d.getHours())}:${pad(d.getMinutes())}<span class="nsub">잘 자요 · 화면을 누르면 잠깐 켜져요</span>`; } }
+$('#night').addEventListener('click',()=>{ nightPeek=Date.now()+60000; updateNight(); });
 // tick: refresh clock; go home after 3 min idle
 let lastAct=Date.now(), lastDay=dkey(new Date());
 ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>lastAct=Date.now()));
 setInterval(()=>{
   const d=new Date();
+  updateNight();
   if(dkey(d)!==lastDay){ lastDay=dkey(d); render(); }
   if(view!=='home' && !$('#modalRoot').innerHTML && Date.now()-lastAct>180000){ parentOk=false; go('home'); return; }
   if(view==='home'){ const c=$('#clk'); const s=`${pad(d.getHours())}:${pad(d.getMinutes())}`; if(c && c.textContent!==s) render(); }
 },5000);
 
-checkBadges(); render(); loadWeather(); setInterval(loadWeather, 30*60e3);
+checkBadges(); render(); updateNight(); loadWeather(); setInterval(loadWeather, 30*60e3);
 })();
 </script>
