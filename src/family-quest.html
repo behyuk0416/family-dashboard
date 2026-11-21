@@ -117,6 +117,47 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 #night .nclk{font-family:var(--f-display);font-size:clamp(80px,14vw,180px);color:#2A2A35;font-variant-numeric:tabular-nums;text-align:center;line-height:1}
 #night .nsub{display:block;font-family:var(--f-body);font-size:18px;color:#24242C;margin-top:12px;font-weight:600}
 .wx .tip{background:var(--gold);color:var(--ink);font-family:var(--f-display);font-size:17px;padding:3px 12px;border-radius:999px}
+.home-top.solo{grid-template-columns:1fr}
+.clock.solo{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:28px;padding-top:14px;padding-bottom:14px}
+.clock.solo .wkbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.wk{display:grid;grid-template-columns:auto repeat(7,minmax(0,1fr));gap:4px;background:rgba(255,255,255,.08);border-radius:16px;padding:8px;align-items:stretch}
+.wk .d{display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0;border-radius:10px;font-size:13px;color:#C9D4EE;font-weight:700;min-width:0}
+.wk .d.today{background:rgba(255,255,255,.12)}
+.wk .d b{font-size:14px;color:#fff}
+.wk .d .e{font-size:22px;line-height:1.1}
+.wk .d .hl{color:#fff;font-size:15px;font-weight:800;white-space:nowrap}
+.wk .d .hl i{font-style:normal;color:#93A3C8;font-weight:700;font-size:12px}
+.wk .d .r{font-size:11px;color:#93A3C8}
+.wk .d .r.wet{color:#8FD0FF}
+.wk .pm{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:12px;padding:4px 10px;color:#fff;font-weight:800;font-size:12px;min-width:64px}
+.wk .pm .e{font-size:24px;line-height:1}
+.wk .pm b{font-family:var(--f-display);font-size:17px}
+.gotip{font-weight:800;font-size:17px;color:#fff}
+.gotip em{font-style:normal;color:var(--gold)}
+.goband{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:22px;padding:16px 22px}
+.goband .gl .label{font-size:17px}
+.goband .big{font-family:var(--f-display);font-size:44px;line-height:1.05;white-space:nowrap}
+.goband .big b{color:var(--grass-d);font-size:56px}
+.goband .big b.hurry{color:var(--berry-d)}
+.gtrack{position:relative;height:64px;border-radius:999px;background:var(--mute);border:3px solid var(--line);margin-top:22px}
+.gfill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--grass);transition:width .8s}
+.gkart{position:absolute;bottom:4px;width:104px;height:76px;transition:left .8s cubic-bezier(.3,1.4,.5,1)}
+.gkart svg{width:100%;height:100%;display:block}
+.bubble{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:#fff;border:3px solid var(--ink);border-radius:999px;padding:4px 18px;font-family:var(--f-display);font-size:22px;white-space:nowrap}
+.gend{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800;color:var(--ink2);font-size:15px}
+.gend span{font-size:52px;line-height:1}
+.fcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
+.m.fc{min-height:300px;justify-content:flex-end;padding:20px 14px 24px;gap:14px}
+.m.fc .ic{font-size:92px;flex:1;display:grid;place-items:center}
+.m.fc .ic .pic{width:1.6em;height:1.6em}
+.m.fc .nm{font-size:28px;word-break:keep-all}
+.m.fc .no{position:absolute;top:12px;left:12px;width:42px;height:42px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font-family:var(--f-display);font-size:22px;background:#fff}
+.m.fc.now{border-color:var(--gold);box-shadow:0 7px 0 var(--gold-d);animation:nudge 2.4s ease-in-out infinite}
+.m.fc .tag{position:absolute;top:14px;left:62px;background:var(--gold);color:var(--ink);font-family:var(--f-display);font-size:18px;padding:3px 12px;border-radius:999px;border:2px solid var(--gold-d)}
+.m.fc.done .nm{color:var(--grass-d)}
+.m.fc .chk{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:24px;background:var(--grass);color:#fff;font-size:68px;display:grid;place-items:center;box-shadow:0 5px 0 var(--grass-d)}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.m.fc.now{animation:none}}
 .wx .off{color:#93A3C8;font-size:14px;font-weight:600;max-width:22ch}
 .sched h3{font-size:24px}
 .sched ul{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
@@ -264,7 +305,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 (() => {
 const KEY = 'familyQuest.v1';
 const DEFAULT_BLOCKS = [
-  {id:'morning', name:'아침 출발 준비', start:'07:00', end:'08:20', days:[1,2,3,4,5], missions:[
+  {id:'morning', name:'아침 출발 준비', goal:'학교 출발', start:'07:00', end:'08:20', days:[1,2,3,4,5], missions:[
     {id:'wake', ic:'🛏️', nm:'일어나서 이불 정리', pt:10},
     {id:'wash', ic:'🪥', nm:'세수하고 양치하기', pt:10},
     {id:'dress', ic:'👕', nm:'옷 갈아입기', pt:10},
@@ -345,6 +386,7 @@ if(!S.img) S.img={};
 if(!S.todos) S.todos=blank().todos;
 if(!S.night) S.night=blank().night;
 if(!S.todoDone) S.todoDone={};
+S.blocks.forEach(b=>{ if(b.goal===undefined) b.goal = b.id==='morning' ? '학교 출발' : ''; });
 const wdOf=k=>{ const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d).getDay(); };
 const ms=(b,wd)=>b.missions.filter(m=>!m.days||m.days.includes(wd));
 const blocksFor=wd=>S.blocks.filter(b=>b.days.includes(wd)&&ms(b,wd).length).sort((a,b)=>toMin(a.start)-toMin(b.start));
@@ -355,14 +397,17 @@ function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} 
 // ---------- weather (Open-Meteo, no key) ----------
 const WMO={0:['☀️','맑음'],1:['🌤️','대체로 맑음'],2:['⛅','구름 조금'],3:['☁️','흐림'],45:['🌫️','안개'],48:['🌫️','안개'],51:['🌦️','이슬비'],53:['🌦️','이슬비'],55:['🌦️','이슬비'],61:['🌧️','비'],63:['🌧️','비'],65:['🌧️','많은 비'],66:['🌧️','어는 비'],67:['🌧️','어는 비'],71:['🌨️','눈'],73:['🌨️','눈'],75:['❄️','많은 눈'],77:['🌨️','싸락눈'],80:['🌦️','소나기'],81:['🌧️','소나기'],82:['⛈️','강한 소나기'],85:['🌨️','눈 소나기'],86:['🌨️','눈 소나기'],95:['⛈️','뇌우'],96:['⛈️','뇌우'],99:['⛈️','뇌우']};
 let WX=null, wxState='loading';
-try{ const c=JSON.parse(localStorage.getItem(KEY+'.wx')); if(c && c.lat===S.loc.lat && c.tm && Date.now()-c.at<3*3600e3){ WX=c; wxState='ok'; } }catch(e){}
+try{ const c=JSON.parse(localStorage.getItem(KEY+'.wx')); if(c && c.lat===S.loc.lat && c.week && Date.now()-c.at<3*3600e3){ WX=c; wxState='ok'; } }catch(e){}
 async function loadWeather(){
   try{
-    const u=`https://api.open-meteo.com/v1/forecast?latitude=${S.loc.lat}&longitude=${S.loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=2`;
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${S.loc.lat}&longitude=${S.loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&hourly=temperature_2m&timezone=auto&forecast_days=7`;
     const r=await fetch(u); if(!r.ok) throw 0; const j=await r.json();
     WX={at:Date.now(), lat:S.loc.lat, t:Math.round(j.current.temperature_2m), code:j.current.weather_code,
         hi:Math.round(j.daily.temperature_2m_max[0]), lo:Math.round(j.daily.temperature_2m_min[0]), rain:j.daily.precipitation_probability_max[0],
-        tm:{hi:Math.round(j.daily.temperature_2m_max[1]), lo:Math.round(j.daily.temperature_2m_min[1]), rain:j.daily.precipitation_probability_max[1], code:j.daily.weather_code[1]}};
+        tm:{hi:Math.round(j.daily.temperature_2m_max[1]), lo:Math.round(j.daily.temperature_2m_min[1]), rain:j.daily.precipitation_probability_max[1], code:j.daily.weather_code[1]},
+        week:j.daily.time.map((d,i)=>({d, hi:Math.round(j.daily.temperature_2m_max[i]), lo:Math.round(j.daily.temperature_2m_min[i]), rain:j.daily.precipitation_probability_max[i], code:j.daily.weather_code[i]})),
+        hr:{t:j.hourly.time.slice(0,48), v:j.hourly.temperature_2m.slice(0,48)}};
+    try{ const a=await (await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${S.loc.lat}&longitude=${S.loc.lon}&current=pm10,pm2_5&timezone=auto`)).json(); WX.pm={p10:Math.round(a.current.pm10), p25:Math.round(a.current.pm2_5)}; }catch(e){}
     wxState='ok'; try{ localStorage.setItem(KEY+'.wx', JSON.stringify(WX)); }catch(e){}
   }catch(e){ if(!WX) wxState='off'; }
   if(view==='home') render();
@@ -378,6 +423,46 @@ function wxHtml(){
   }
   if(wxState==='loading') return `<div class="wx"><div class="off">날씨 불러오는 중…</div></div>`;
   return `<div class="wx"><div class="off">날씨를 불러오지 못했어요. 태블릿용 설치 주소에서 열면 보여요.</div></div>`;
+}
+
+// weekly strip + fine dust + "when you leave" tip
+const PM_G=[['좋음','😊','#2FA866'],['보통','🙂','#3D8BFF'],['나쁨','😷','#F28C28'],['매우 나쁨','🤢','#E5484D']];
+function pmGrade(pm){ const a=pm.p10<=30?0:pm.p10<=80?1:pm.p10<=150?2:3, b=pm.p25<=15?0:pm.p25<=35?1:pm.p25<=75?2:3; return PM_G[Math.max(a,b)]; }
+function leaveInfo(){
+  const now=new Date(), n=nowMin();
+  for(let add=0; add<2; add++){
+    const d=new Date(now); d.setDate(d.getDate()+add); const bl=blocksFor(d.getDay());
+    if(!bl.length) continue; const e=bl[0].end; if(add===0 && toMin(e)<n) continue;
+    const key=`${dkey(d)}T${e.slice(0,2)}:00`; const i=WX&&WX.hr?WX.hr.t.indexOf(key):-1;
+    if(i<0) return null; return {when:(add?'내일 ':'')+e, t:Math.round(WX.hr.v[i])};
+  }
+  return null;
+}
+function weekHtml(){
+  if(wxState!=='ok'||!WX||!WX.week) return '';
+  const tk=dkey(new Date());
+  const days=WX.week.map((w,i)=>{ const wd=wdOf(w.d); const lab=w.d===tk?'오늘':'일월화수목금토'[wd];
+    return `<div class="d ${w.d===tk?'today':''}"><b style="${wd===0?'color:#FF8FA3':wd===6?'color:#8FB8FF':''}">${lab}</b><span class="e">${(WMO[w.code]||['🌡️'])[0]}</span><span class="hl num">${w.hi}° <i>${w.lo}°</i></span><span class="r num ${w.rain>=50?'wet':''}">비 ${w.rain??0}%</span></div>`; }).join('');
+  const g=WX.pm?pmGrade(WX.pm):null;
+  const pm=g?`<div class="pm" style="background:${g[2]}"><span>미세먼지</span><span class="e">${g[1]}</span><b>${g[0]}</b></div>`:'<div></div>';
+  const li=leaveInfo(); let tip='';
+  if(li){ const t=li.t; const say=t<=0?'추워요, 두꺼운 겉옷 입기':t<=8?'쌀쌀해요, 겉옷 챙기기':t>=27?'더워요, 시원하게 입기':'딱 좋은 날씨예요';
+    tip=`<div class="gotip">🚪 나갈 때 (${li.when}) <em class="num">${t}°</em> ${say}${g&&g[0].includes('나쁨')?' · 마스크 쓰기':''}</div>`; }
+  return `<div class="wk">${pm}${days}</div>${tip}`;
+}
+function fmtMin(m){ return m>=60?`${Math.floor(m/60)}시간 ${m%60}분`:`${m}분`; }
+function focusHtml(cb){
+  const wd=new Date().getDay(), day=today(), st=blockStatus(cb), list=ms(cb,wd);
+  const p=st.done/st.total, goal=(cb.goal||'').trim()||`${cb.name} 끝`;
+  const nextId=(list.find(m=>!day.done[m.id])||{}).id;
+  const band=`<div class="panel goband"><div class="gl"><div class="label">${esc(goal)}까지</div><div class="big"><b class="num ${st.left<=10?'hurry':''}">${fmtMin(st.left)}</b> 남았어요</div></div>
+    <div class="gtrack"><div class="gfill" style="width:${p*100}%"></div><div class="gkart" style="left:calc((100% - 104px) * ${p})">${kartSVG()}</div>
+      <div class="bubble">${st.done===st.total?'다 했어! 출발!':`${st.total-st.done}개 남았어! 힘내!`}</div></div>
+    <div class="gend"><span>${/학교|유치원|등원|등교/.test(goal)?'🏫':'🏁'}</span><small class="num">${esc(goal)} ${cb.end}</small></div></div>`;
+  const cards=list.map((m,i)=>{ const d=day.done[m.id]; return `<div class="m fc ${d?'done':''} ${m.id===nextId?'now':''}" role="button" tabindex="0" data-m="${m.id}">
+    <span class="no num">${i+1}</span>${m.id===nextId?'<span class="tag">같이 하자!</span>':''}
+    <span class="ic">${ico('m:'+m.id,m.ic)}</span>${d?'<span class="chk">✓</span>':''}<span class="nm">${esc(m.nm)}</span></div>`; }).join('');
+  return `${band}<div class="fcards">${cards}</div>`;
 }
 
 // ---------- family schedule ----------
@@ -544,16 +629,17 @@ function renderHome(){
   const ts=todaySchedule();
   const sched=ts.length?`<ul>${ts.map(x=>`<li class="${x.past?'past':''} ${x.next?'next':''}"><span class="tm num">${x.time}</span><span class="tx">${esc(x.text)}<small>${esc(x.who)}</small></span><span class="cd num">${x.past?'지남':fmtLeft(x.left)}</span></li>`).join('')}</ul>`:`<p class="empty">오늘은 정해진 일정이 없어요. 부모 모드에서 추가할 수 있어요.</p>`;
   const medals=BADGES.map(b=>`<div class="medal ${S.badges.includes(b.id)?'on':''}" title="${esc(bname(b))}">${badgeArt(b)}</div>`).join('');
+  const focus = cb && blockStatus(cb).st==='active';
   main.innerHTML=`<section class="screen">
     ${hud()}
-    <div class="home-top">
-      <div class="panel clock"><div class="hello">${hello}, ${esc(S.kidName)}!</div>
+    <div class="home-top ${focus?'solo':''}">
+      ${focus?`<div class="panel clock solo"><div><div class="time num" id="clk">${pad(h)}:${pad(d.getMinutes())}</div><div class="date">${d.getMonth()+1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일${WX&&wxState==='ok'?` · 지금 ${WX.t}°`:''}</div></div><div class="wkbox">${weekHtml()||wxHtml()}</div></div>`:`<div class="panel clock"><div class="hello">${hello}, ${esc(S.kidName)}!</div>
         <div class="clock-row"><div><div class="time num" id="clk">${pad(h)}:${pad(d.getMinutes())}</div>
-        <div class="date">${d.getMonth()+1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일</div></div>${wxHtml()}</div></div>
-      ${nq}
+        <div class="date">${d.getMonth()+1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일</div></div>${wxHtml()}</div>${weekHtml()}</div>`}
+      ${focus?'':nq}
     </div>
-    ${raceHtml()}
-    <div class="timeline">${tl}</div>
+    ${focus?focusHtml(cb):raceHtml()}
+    ${focus?'':`<div class="timeline">${tl}</div>`}
     <div class="home-bottom">
       <div class="panel sched"><h3>오늘 가족 일정</h3>${sched}
         ${S.todos.length?`<div class="sub-h">가족 할 일</div><div class="todos">${todoList().map(t=>`<button class="todo ${t.on?'on':''}" data-todo="${t.id}"><span class="bx">${t.on?'✓':''}</span><span>${esc(t.text)}</span></button>`).join('')}</div>`:''}</div>
@@ -617,7 +703,7 @@ function renderParent(){
     return;
   }
   const pb=S.blocks.find(b=>b.id===pBlock)||S.blocks[0]; pBlock=pb.id;
-  const times=S.blocks.map(b=>`<div class="field sitem"><div class="trow"><input id="n_${b.id}" value="${esc(b.name)}" aria-label="시간대 이름" style="font-weight:800"><button class="btn danger" data-bdel="${b.id}">삭제</button></div><span class="label">나오는 요일 · <span id="bl_${b.id}">${dayLabel(b.days)}</span></span><div class="days" style="margin-bottom:4px">${[1,2,3,4,5,6,0].map(w=>`<button class="day" data-bday="${b.id}:${w}" aria-pressed="${b.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div></div>`).join('');
+  const times=S.blocks.map(b=>`<div class="field sitem"><div class="trow"><input id="n_${b.id}" value="${esc(b.name)}" aria-label="시간대 이름" style="font-weight:800"><button class="btn danger" data-bdel="${b.id}">삭제</button></div><span class="label">나오는 요일 · <span id="bl_${b.id}">${dayLabel(b.days)}</span></span><div class="days" style="margin-bottom:4px">${[1,2,3,4,5,6,0].map(w=>`<button class="day" data-bday="${b.id}:${w}" aria-pressed="${b.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div><input id="g_${b.id}" value="${esc(b.goal||'')}" placeholder="끝나는 시각 이름 (예: 학교 출발)" aria-label="끝나는 시각 이름"></div>`).join('');
   main.innerHTML=`<section class="screen">
     <h2 style="font-size:30px">부모 모드</h2>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">요일별 계획표</h3>
@@ -715,7 +801,7 @@ function renderParent(){
   main.querySelectorAll('[data-tdel]').forEach(x=>x.onclick=()=>{ collect(); S.todos.splice(+x.dataset.tdel,1); save(); renderParent(); });
   $('#tdAdd').onclick=()=>{ collect(); S.todos.push({id:'t'+Date.now(), text:''}); renderParent(); $('#td_'+(S.todos.length-1))?.focus(); };
   $('#ntOn').onclick=()=>{ collect(); S.night.on=!S.night.on; save(); renderParent(); };
-  const collect=()=>{ collectME(); S.todos.forEach((t,i)=>{ const el=$('#td_'+i); if(el) t.text=el.value.trim()||'할 일'; }); const ns=$('#ntS'), ne=$('#ntE'); if(ns&&ns.value) S.night.start=ns.value; if(ne&&ne.value) S.night.end=ne.value; S.blocks.forEach(b=>{ const n=$('#n_'+b.id); if(n) b.name=n.value.trim()||'시간대'; const st=$('#s_'+b.id), en=$('#e_'+b.id); if(st&&st.value) b.start=st.value; if(en&&en.value) b.end=en.value; }); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
+  const collect=()=>{ collectME(); S.todos.forEach((t,i)=>{ const el=$('#td_'+i); if(el) t.text=el.value.trim()||'할 일'; }); const ns=$('#ntS'), ne=$('#ntE'); if(ns&&ns.value) S.night.start=ns.value; if(ne&&ne.value) S.night.end=ne.value; S.blocks.forEach(b=>{ const n=$('#n_'+b.id); if(n) b.name=n.value.trim()||'시간대'; const g=$('#g_'+b.id); if(g) b.goal=g.value.trim(); const st=$('#s_'+b.id), en=$('#e_'+b.id); if(st&&st.value) b.start=st.value; if(en&&en.value) b.end=en.value; }); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
   main.querySelectorAll('[data-sday]').forEach(b=>b.onclick=()=>{ const [i,w]=b.dataset.sday.split(':').map(Number); const ds=S.schedule[i].days; const k=ds.indexOf(w); k<0?ds.push(w):ds.splice(k,1); b.setAttribute('aria-pressed',k<0); });
   main.querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{ collect(); S.schedule.splice(Number(b.dataset.sdel),1); save(); renderParent(); });
   $('#sAdd').onclick=()=>{ collect(); S.schedule.push({id:'s'+Date.now(), time:'18:00', who:'', text:'', days:[1,2,3,4,5]}); renderParent(); const i=S.schedule.length-1; $('#sx_'+i)?.focus(); };
