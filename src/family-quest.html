@@ -1,26 +1,26 @@
 <title>우리집 퀘스트 보드</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="theme-color" content="#DCEEFF">
+<meta name="theme-color" content="#FBE9F4">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gothic+A1:wght@400;600;800&display=swap">
 <style>
 /* Layout: landscape tablet. Left nav rail + one screen at a time, chunky "game button" cards. Single bright theme by choice. */
 :root{
-  --sky:#DCEEFF; --sky2:#C6E2FF;
+  --sky:#FBE9F4; --sky2:#F3D3E8;
   --ink:#1C2A4A; --ink2:#55648A;
-  --card:#FFFFFF; --line:#B9CCE8;
+  --card:#FFFFFF; --line:#E8C6DC;
   --gold:#FFC83D; --gold-d:#D89A00;
   --grass:#2FBF71; --grass-d:#1E8C51;
   --berry:#FF5D7A; --berry-d:#C93552;
   --violet:#6D55F0; --violet-d:#4A33C4;
-  --mute:#E8EEF8;
+  --mute:#F8EBF3;
   --f-display:"Jua","Gothic A1",system-ui,sans-serif;
   --f-body:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
   color-scheme:light;
 }
 html,body{height:100%}
-body{background:var(--sky);color:var(--ink);font-family:var(--f-body);font-size:16px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;overflow-x:hidden}
+body{background-color:var(--sky);background-image:radial-gradient(circle at 20px 20px,#fff 1.6px,transparent 2.4px),radial-gradient(circle at 60px 70px,#fff 1.2px,transparent 2px);background-size:90px 90px,130px 130px;color:var(--ink);font-family:var(--f-body);font-size:16px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;overflow-x:hidden}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
 button:focus-visible,input:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
 .app{display:grid;grid-template-columns:96px 1fr;height:100%;min-height:100%}
@@ -50,7 +50,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 /* home */
 .home-top{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}
 .clock{display:flex;flex-direction:column;justify-content:space-between;gap:12px;background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 6px 0 #0E1730}
-.clock .time{font-family:var(--f-display);font-size:clamp(64px,9vw,120px);line-height:.95}
+.clock .time{font-family:var(--f-display);font-size:clamp(60px,8vw,100px);line-height:.95}
 .clock .date{font-size:20px;color:#C9D4EE;font-weight:600}
 .clock .hello{font-family:var(--f-display);font-size:26px;color:var(--gold)}
 .now-quest{display:flex;flex-direction:column;gap:14px}
@@ -76,6 +76,28 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .tl.late .pill{background:var(--gold);color:var(--ink)}
 .tl.missed .pill{background:var(--berry);color:#fff}
 
+.race{padding:12px 20px 16px;display:flex;flex-direction:column;gap:10px}
+.race-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.race-top h3{font-size:24px}
+.race-top span{font-weight:800;color:var(--berry-d)}
+.track{position:relative;height:84px;border-radius:18px;background:#3B3F58;overflow:hidden;box-shadow:inset 0 -6px 0 #2A2D42}
+.track::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:4px dashed rgba(255,255,255,.45)}
+.track::after{content:"";position:absolute;right:0;top:0;bottom:0;width:22px;background:repeating-conic-gradient(#fff 0 25%,#1C2A4A 0 50%) 0 0/11px 11px}
+.cp{position:absolute;top:6px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#fff;background:var(--violet);padding:1px 7px;border-radius:999px;white-space:nowrap}
+.cp.ok{background:var(--grass)}
+.cp::after{content:"";position:absolute;left:50%;top:100%;height:70px;border-left:2px dotted rgba(255,255,255,.5)}
+.kart{position:absolute;bottom:6px;width:96px;height:66px;transition:left .8s cubic-bezier(.3,1.4,.5,1)}
+.kart svg{width:100%;height:100%;display:block}
+.pic{width:1em;height:1em;object-fit:cover;border-radius:24%;vertical-align:middle;display:inline-block}
+.medal svg{width:86%;height:86%}
+.medal.on{background:radial-gradient(circle at 50% 35%,#fff,#FFE9F5)}
+.mon-card{background:linear-gradient(160deg,#fff 0%,#FFF2D6 100%)}
+.picbtn{width:56px;height:48px;border-radius:12px;border:2px dashed var(--line);background:var(--card);font-size:12px;font-weight:800;color:var(--ink2);display:grid;place-items:center;overflow:hidden;padding:0}
+.picbtn img{width:100%;height:100%;object-fit:cover}
+.picgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.picitem{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;border-radius:14px;background:var(--mute);text-align:center}
+.picitem .medal{width:64px;height:64px;font-size:30px}
+.picitem b{font-size:14px}
 .home-bottom{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:18px}
 .clock-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .wx{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right;min-width:0}
@@ -100,7 +122,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .days{display:flex;gap:4px;flex-wrap:wrap;grid-column:1/-1}
 .day{width:38px;height:34px;border-radius:10px;border:2px solid var(--line);font-weight:800;font-size:14px;background:var(--card)}
 .day[aria-pressed="true"]{background:var(--violet);border-color:var(--violet-d);color:#fff}
-.erow{display:grid;grid-template-columns:64px 1fr 110px auto;gap:8px;align-items:center}
+.erow{display:grid;grid-template-columns:64px 56px 1fr 110px auto;gap:8px;align-items:center}
 .erow input{font:inherit;font-size:16px;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);min-width:0;user-select:text;-webkit-user-select:text}
 .erow input.ic{text-align:center;font-size:24px;padding:4px}
 .ehead{font-size:12px;font-weight:800;color:var(--ink2);letter-spacing:.04em}
@@ -123,7 +145,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .sis-btn small{font-size:12px;color:var(--ink2);white-space:nowrap}
 .sis-btn:active{background:#FFD9E1}
 .badge-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.medal{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:26px;background:var(--mute);border:3px dashed var(--line);filter:grayscale(1);opacity:.55}
+.medal{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:26px;background:var(--mute);border:3px dashed var(--line);overflow:hidden}
+.medal .pic{width:100%;height:100%;border-radius:50%}
 .medal.on{background:#FFF4CF;border:3px solid var(--gold-d);filter:none;opacity:1}
 
 /* missions */
@@ -182,7 +205,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}
 .modal{position:fixed;inset:0;background:rgba(28,42,74,.55);display:grid;place-items:center;z-index:40;padding:16px}
 .modal .box{background:var(--card);border-radius:28px;padding:28px 32px;text-align:center;max-width:440px;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;animation:pop .35s ease-out}
-.modal .big{font-size:84px;line-height:1}
+.modal .big{font-size:84px;line-height:1;display:grid;place-items:center}
+.modal .big svg,.modal .big .pic{width:120px;height:120px}
 .modal h2{font-size:34px}
 .modal p{margin:0;color:var(--ink2);font-weight:600;line-height:1.5}
 @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
@@ -277,18 +301,18 @@ const REWARDS = [
 ];
 const LEVELS = ['새싹 탐험가','꼬마 모험가','용감한 기사','별빛 마법사','드래곤 라이더','전설의 영웅'];
 const BADGES = [
-  {id:'first', ic:'⭐', nm:'첫 미션', desc:'미션 1개 완료'},
-  {id:'morning', ic:'🌅', nm:'아침 마스터', desc:'아침 미션을 시간 안에 모두'},
-  {id:'study', ic:'🧠', nm:'공부 용사', desc:'하교 후 미션을 시간 안에 모두'},
-  {id:'allclear', ic:'🏆', nm:'올클리어', desc:'하루 미션 전부 완료'},
-  {id:'reader5', ic:'📚', nm:'책벌레', desc:'책 읽기 5일'},
-  {id:'streak3', ic:'🔥', nm:'3일 연속', desc:'3일 연속 아침 미션 클리어'},
-  {id:'streak7', ic:'🌈', nm:'7일 연속', desc:'7일 연속 아침 미션 클리어'},
-  {id:'kind', ic:'💖', nm:'다정한 오빠', desc:'동생이랑 놀아주기 5번'},
+  {id:'first', ic:'⭐', nm:'반짝이', desc:'첫 미션 완료', mon:{col:'#FFD34D',shape:'star',x:'none'}},
+  {id:'morning', ic:'🌅', nm:'해돋이', desc:'아침 미션을 시간 안에 모두', mon:{col:'#FF9E5E',shape:'round',x:'rays'}},
+  {id:'study', ic:'🧠', nm:'똑똑이', desc:'하교 후 미션을 시간 안에 모두', mon:{col:'#7FB2FF',shape:'round',x:'glasses'}},
+  {id:'allclear', ic:'🏆', nm:'왕관곰', desc:'하루 미션 전부 완료', mon:{col:'#C69A6B',shape:'round',x:'crown'}},
+  {id:'reader5', ic:'📚', nm:'책벌레 뭉치', desc:'책 읽기 5일', mon:{col:'#8EDB8A',shape:'drop',x:'leaf'}},
+  {id:'streak3', ic:'🔥', nm:'불꼬리', desc:'3일 연속 첫 미션 클리어', mon:{col:'#FF6B5E',shape:'drop',x:'flame'}},
+  {id:'streak7', ic:'🌈', nm:'무지개룡', desc:'7일 연속 첫 미션 클리어', mon:{col:'#B48CFF',shape:'round',x:'horns'}},
+  {id:'kind', ic:'💖', nm:'하트콩', desc:'동생이랑 놀아주기 5번', mon:{col:'#FF8FC2',shape:'round',x:'ears'}},
 ];
 
 // ---------- state ----------
-function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS)), days:{}, sis:{}, redeemed:[], badges:[], rewards:JSON.parse(JSON.stringify(REWARDS)),
+function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS)), days:{}, sis:{}, redeemed:[], badges:[], rewards:JSON.parse(JSON.stringify(REWARDS)), img:{},
   schedule:[
     {id:'s1', time:'19:00', who:'아빠', text:'퇴근해서 집 도착 (예시)', days:[1,2,3,4,5]},
     {id:'s2', time:'16:00', who:'아들', text:'학원 가는 날 (예시)', days:[2,4]},
@@ -304,6 +328,7 @@ if(S.blocks.some(b=>!b.days)){
   DEFAULT_BLOCKS.forEach((b,i)=>{ if(!S.blocks.some(x=>x.id===b.id)) S.blocks.splice(Math.min(i,S.blocks.length),0,JSON.parse(JSON.stringify(b))); });
   save();
 }
+if(!S.img) S.img={};
 const wdOf=k=>{ const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d).getDay(); };
 const ms=(b,wd)=>b.missions.filter(m=>!m.days||m.days.includes(wd));
 const blocksFor=wd=>S.blocks.filter(b=>b.days.includes(wd)&&ms(b,wd).length).sort((a,b)=>toMin(a.start)-toMin(b.start));
@@ -404,6 +429,45 @@ const $=s=>document.querySelector(s);
 const main=$('#main');
 let view='home', questTab=null;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function ico(key, emoji){ const u=S.img&&S.img[key]; return u?`<img class="pic" src="${u}" alt="">`:emoji; }
+function monster(m, on){
+  const f=on?m.col:'#D9C7D6', d=on?'rgba(0,0,0,.18)':'rgba(0,0,0,.08)';
+  let body='';
+  if(m.shape==='star'){ const pts=[]; for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?22:40;pts.push((50+r*Math.cos(a)).toFixed(1)+','+(56+r*Math.sin(a)).toFixed(1));} body=`<polygon points="${pts.join(' ')}" fill="${f}" stroke="${d}" stroke-width="3" stroke-linejoin="round"/>`; }
+  else if(m.shape==='drop') body=`<path d="M50 14 C66 34 80 46 80 62 A30 28 0 0 1 20 62 C20 46 34 34 50 14Z" fill="${f}" stroke="${d}" stroke-width="3"/>`;
+  else body=`<ellipse cx="50" cy="58" rx="32" ry="29" fill="${f}" stroke="${d}" stroke-width="3"/>`;
+  const X={
+    none:'', rays:`<g stroke="${on?'#FFC83D':'#D9C7D6'}" stroke-width="5" stroke-linecap="round"><path d="M50 8v10M22 18l7 7M78 18l-7 7M10 44h9M90 44h-9"/></g>`,
+    glasses:`<g fill="none" stroke="#1C2A4A" stroke-width="3"><circle cx="39" cy="56" r="9"/><circle cx="61" cy="56" r="9"/><path d="M48 56h4"/></g>`,
+    crown:`<path d="M30 32 L34 16 L43 26 L50 12 L57 26 L66 16 L70 32Z" fill="${on?'#FFC83D':'#D9C7D6'}" stroke="${d}" stroke-width="2"/>`,
+    leaf:`<path d="M50 16 C58 4 72 6 74 8 C70 18 60 22 50 16Z" fill="${on?'#2FBF71':'#D9C7D6'}"/>`,
+    flame:`<path d="M80 70 C96 64 92 46 86 38 C86 50 80 52 78 50 C80 58 76 64 72 66Z" fill="${on?'#FFC83D':'#D9C7D6'}"/>`,
+    horns:`<path d="M30 36 L24 16 L40 32Z M70 36 L76 16 L60 32Z" fill="${on?'#FFE58A':'#D9C7D6'}"/>`,
+    ears:`<path d="M24 44 L22 22 L40 34Z M76 44 L78 22 L60 34Z" fill="${f}" stroke="${d}" stroke-width="3" stroke-linejoin="round"/>`,
+  }[m.x]||'';
+  const back = (m.x==='flame'||m.x==='rays'||m.x==='ears'||m.x==='horns') ? X : '';
+  const front = back || (!on && m.x==='glasses') ? '' : X;
+  const face = on ? `<ellipse cx="40" cy="57" rx="4.5" ry="6" fill="#1C2A4A"/><ellipse cx="60" cy="57" rx="4.5" ry="6" fill="#1C2A4A"/><circle cx="41.5" cy="54.5" r="1.6" fill="#fff"/><circle cx="61.5" cy="54.5" r="1.6" fill="#fff"/><ellipse cx="31" cy="67" rx="5" ry="3" fill="#FF7FA8" opacity=".55"/><ellipse cx="69" cy="67" rx="5" ry="3" fill="#FF7FA8" opacity=".55"/><path d="M45 68 Q50 73 55 68" stroke="#1C2A4A" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+                  : `<text x="50" y="66" text-anchor="middle" font-family="Jua,sans-serif" font-size="26" fill="#fff">?</text>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${back}${body}${front}${face}</svg>`;
+}
+function badgeArt(b){ const on=S.badges.includes(b.id); const u=S.img&&S.img['b:'+b.id]; return on&&u?`<img class="pic" src="${u}" alt="">`:monster(b.mon,on); }
+function kartSVG(){
+  const u=S.img&&S.img.kart;
+  const head = u ? `<defs><clipPath id="kc"><circle cx="40" cy="20" r="15"/></clipPath></defs><image href="${u}" x="25" y="5" width="30" height="30" clip-path="url(#kc)" preserveAspectRatio="xMidYMid slice"/><circle cx="40" cy="20" r="15" fill="none" stroke="#fff" stroke-width="3"/>`
+                 : `<circle cx="40" cy="20" r="15" fill="#FF5D7A" stroke="#fff" stroke-width="3"/><path d="M30 20 h20 v6 a10 6 0 0 1 -20 0z" fill="#BFE3FF"/><circle cx="36" cy="14" r="3" fill="#fff" opacity=".8"/>`;
+  return `<svg viewBox="0 0 100 70" aria-hidden="true"><path d="M8 52 L14 36 L70 36 L88 44 L92 52Z" fill="#FFC83D" stroke="#D89A00" stroke-width="3" stroke-linejoin="round"/><rect x="58" y="28" width="6" height="10" fill="#55648A"/><path d="M60 28 h12" stroke="#1C2A4A" stroke-width="4" stroke-linecap="round"/>${head}<circle cx="24" cy="56" r="11" fill="#1C2A4A"/><circle cx="24" cy="56" r="4" fill="#C9D4EE"/><circle cx="76" cy="56" r="11" fill="#1C2A4A"/><circle cx="76" cy="56" r="4" fill="#C9D4EE"/><path d="M0 44 h8 M2 50 h6" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/></svg>`;
+}
+function raceHtml(){
+  const wd=new Date().getDay(), day=today(), tb=todayBlocks();
+  let total=0, done=0; const cps=[];
+  tb.forEach(b=>{ const l=ms(b,wd); total+=l.length; done+=l.filter(m=>day.done[m.id]).length; cps.push({nm:b.name, at:total, ok:l.every(m=>day.done[m.id])}); });
+  if(!total) return '';
+  const p=done/total, left=done===total?'오늘의 레이스 우승!':`결승선까지 미션 ${total-done}개!`;
+  return `<div class="panel race"><div class="race-top"><h3>오늘의 레이스</h3><span>${left}</span></div>
+    <div class="track">${cps.slice(0,-1).map(c=>`<span class="cp ${c.ok?'ok':''}" style="left:calc((100% - 22px) * ${c.at/total})">${esc(c.nm)}</span>`).join('')}
+    <div class="kart" style="left:calc((100% - 118px) * ${p})">${kartSVG()}</div></div></div>`;
+}
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1800); }
 function flyAt(x,y,txt){ const f=document.createElement('div'); f.className='fly'; f.textContent=txt; f.style.left=(x-30)+'px'; f.style.top=(y-30)+'px'; document.body.appendChild(f); setTimeout(()=>f.remove(),1000); }
 function modal(big,title,text,btn='좋아!'){
@@ -443,7 +507,7 @@ function renderHome(){
       <div class="label">지금 할 퀘스트</div>
       <div class="row"><div class="ring" style="--p:${pct}"><div class="num">${st.done}/${st.total}</div></div>
         <div><h2>${esc(cb.name)}</h2>${sub}</div></div>
-      ${next?`<button class="bigbtn" data-open="${cb.id}">${next.ic} 다음: ${esc(next.nm)}</button>`:`<button class="bigbtn gold" data-open="${cb.id}">🏆 이 시간 미션 끝!</button>`}
+      ${next?`<button class="bigbtn" data-open="${cb.id}">${ico('m:'+next.id,next.ic)} 다음: ${esc(next.nm)}</button>`:`<button class="bigbtn gold" data-open="${cb.id}">🏆 이 시간 미션 끝!</button>`}
     </div>`;
   } else {
     nq=`<div class="panel now-quest"><div class="label">오늘의 퀘스트</div><h2>오늘 미션은 모두 끝났어</h2><p class="note">푹 자고 내일 또 모험하자. 보상 화면에서 코인을 써볼까?</p><button class="bigbtn gold" data-go="reward">🎁 보상 보러 가기</button></div>`;
@@ -456,7 +520,7 @@ function renderHome(){
   const sb=(k,ic,nm)=>{const arr=sis[k]||[];return `<button class="sis-btn" data-sis="${k}"><span class="ic">${ic}</span><b>${nm} <span class="num">${arr.length}</span></b><small>${since(arr[arr.length-1])}</small></button>`;};
   const ts=todaySchedule();
   const sched=ts.length?`<ul>${ts.map(x=>`<li class="${x.past?'past':''} ${x.next?'next':''}"><span class="tm num">${x.time}</span><span class="tx">${esc(x.text)}<small>${esc(x.who)}</small></span><span class="cd num">${x.past?'지남':fmtLeft(x.left)}</span></li>`).join('')}</ul>`:`<p class="empty">오늘은 정해진 일정이 없어요. 부모 모드에서 추가할 수 있어요.</p>`;
-  const medals=BADGES.map(b=>`<div class="medal ${S.badges.includes(b.id)?'on':''}" title="${esc(b.nm)}">${b.ic}</div>`).join('');
+  const medals=BADGES.map(b=>`<div class="medal ${S.badges.includes(b.id)?'on':''}" title="${esc(b.nm)}">${badgeArt(b)}</div>`).join('');
   main.innerHTML=`<section class="screen">
     ${hud()}
     <div class="home-top">
@@ -465,12 +529,13 @@ function renderHome(){
         <div class="date">${d.getMonth()+1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일</div></div>${wxHtml()}</div></div>
       ${nq}
     </div>
+    ${raceHtml()}
     <div class="timeline">${tl}</div>
     <div class="home-bottom">
       <div class="panel sched"><h3>오늘 가족 일정</h3>${sched}</div>
       <div class="panel sis"><h3>${esc(S.sisName)} 기록 <span class="label">· 16개월</span></h3>
         <div class="sis-btns">${sb('meal','🍼','식사')}${sb('nap','😴','낮잠')}${sb('diaper','🧷','기저귀')}</div></div>
-      <div class="panel badges-mini"><h3>모은 배지 <span class="label num">· ${S.badges.length}/${BADGES.length}</span></h3><div class="badge-row">${medals}</div></div>
+      <div class="panel badges-mini"><h3>몬스터 도감 <span class="label num">· ${S.badges.length}/${BADGES.length}</span></h3><div class="badge-row">${medals}</div></div>
     </div>
   </section>`;
 }
@@ -484,7 +549,7 @@ function renderQuest(){
   const st=blockStatus(b);
   const tabs=tb.map(x=>`<button class="tab" role="tab" aria-selected="${x.id===b.id}" data-tab="${x.id}"><b>${esc(x.name)}</b><span class="num">${x.start} – ${x.end} · ${blockStatus(x).done}/${blockStatus(x).total}</span></button>`).join('');
   const cards=ms(b,new Date().getDay()).map(m=>{const d=day.done[m.id];return `<div class="m ${d?'done':''}" role="button" tabindex="0" data-m="${m.id}">
-      <span class="ic">${m.ic}</span><span class="nm">${esc(m.nm)}</span><span class="pt">+${m.pt} 코인${d?'':` · 제시간 +${ON_TIME_BONUS}`}</span>
+      <span class="ic">${ico('m:'+m.id,m.ic)}</span><span class="nm">${esc(m.nm)}</span><span class="pt">+${m.pt} 코인${d?'':` · 제시간 +${ON_TIME_BONUS}`}</span>
       ${d?`<span class="stamp ${d.onTime?'':'late'}">${d.onTime?'성공!':'완료'}</span><button class="undo" data-undo="${m.id}">되돌리기</button>`:''}</div>`;}).join('');
   const msg = st.st==='active' ? `${b.end}까지 모두 끝내면 보물상자 +${CHEST} 코인!` : st.st==='upcoming' ? `${b.start}에 시작해. 미리 해도 괜찮아!` : st.st==='clear'?'시간 안에 클리어! 보물상자를 열었어.':st.st==='late'?'다 했어! 다음엔 시간 안에 도전!':'시간은 지났지만 지금 해도 코인을 받을 수 있어.';
   main.innerHTML=`<section class="screen">
@@ -497,10 +562,10 @@ function renderQuest(){
 }
 
 function renderReward(){
-  const shop=S.rewards.map(r=>`<div class="panel item"><span class="ic">${r.ic}</span><h3>${esc(r.nm)}</h3>
+  const shop=S.rewards.map(r=>`<div class="panel item"><span class="ic">${ico('r:'+r.id,r.ic)}</span><h3>${esc(r.nm)}</h3>
     <div class="price"><span class="chip" style="padding:2px 10px 2px 4px;font-size:18px;border-width:2px"><span class="coin" style="width:24px;height:24px;font-size:12px">₩</span>${r.cost}</span></div>
     <button class="hold" data-hold="${r.id}" ${S.coins<r.cost?'disabled':''}><span class="fill"></span><span>${S.coins<r.cost?`${r.cost-S.coins}코인 더 모으기`:'부모님이 꾹 눌러서 교환'}</span></button></div>`).join('');
-  const bd=BADGES.map(b=>`<div class="panel bd"><div class="medal ${S.badges.includes(b.id)?'on':''}">${b.ic}</div><b>${esc(b.nm)}</b><small>${esc(b.desc)}</small></div>`).join('');
+  const bd=BADGES.map(b=>{const on=S.badges.includes(b.id);return `<div class="panel bd ${on?'mon-card':''}"><div class="medal ${on?'on':''}">${badgeArt(b)}</div><b>${on?esc(b.nm):'???'}</b><small>${esc(b.desc)}</small></div>`;}).join('');
   const log=S.redeemed.slice(-20).reverse().map(x=>`<li><span>${esc(x.nm)}</span><span class="num">${x.date}</span></li>`).join('') || '<li><span>아직 교환한 보상이 없어</span></li>';
   const L=level();
   main.innerHTML=`<section class="screen">
@@ -509,13 +574,14 @@ function renderReward(){
       <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div style="flex:1;height:18px;border-radius:9px;background:var(--mute);overflow:hidden"><div style="width:${L.into/2}%;height:100%;background:var(--violet)"></div></div><b class="num">${L.into}/200 XP</b></div></div>
     <h2 style="font-size:30px">보상 상점</h2>
     <div class="shop">${shop}</div>
-    <h2 style="font-size:30px">배지 도감</h2>
+    <h2 style="font-size:30px">몬스터 도감</h2>
     <div class="badges">${bd}</div>
     <div class="panel"><h3 style="font-size:22px">교환 기록</h3><ul class="log">${log}</ul></div>
   </section>`;
 }
 
 let parentOk=false, pBlock=null;
+function picBtn(k){ const u=S.img&&S.img[k]; return `<button class="picbtn" data-pic="${k}" aria-label="사진">${u?`<img src="${u}" alt="">`:'사진'}</button>`; }
 function renderParent(){
   if(!parentOk){
     const a=6+Math.floor(Math.random()*4), b=6+Math.floor(Math.random()*4);
@@ -544,14 +610,19 @@ function renderParent(){
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">미션 편집</h3>
       <p class="note">시간대를 고른 뒤 미션 이름, 아이콘(이모지), 코인을 바꾸세요. 시간 안에 하면 +${ON_TIME_BONUS} 코인이 자동으로 더해져요.</p>
       <div class="tabs">${S.blocks.map(b=>`<button class="tab" aria-selected="${b.id===pb.id}" data-pblock="${b.id}"><b style="font-size:18px">${esc(b.name)}</b><span>${b.days.length?dayLabel(b.days):'요일 없음'} · ${b.missions.length}개</span></button>`).join('')}</div>
-      <div class="erow ehead"><span>아이콘</span><span>미션 이름</span><span>코인</span><span></span></div>
-      <div style="display:flex;flex-direction:column;gap:8px">${pb.missions.map((m,i)=>`<div class="sitem"><div class="erow"><input class="ic" id="mi_${i}" value="${esc(m.ic)}" maxlength="4" aria-label="아이콘"><input id="mn_${i}" value="${esc(m.nm)}" aria-label="미션 이름"><input id="mp_${i}" type="number" inputmode="numeric" min="0" max="200" value="${m.pt}" aria-label="코인"><button class="btn danger" data-mdel="${i}">삭제</button></div><div class="days"><span class="ehead" style="align-self:center;margin-right:4px">나오는 요일</span>${pb.days.slice().sort((a,b)=>((a+6)%7)-((b+6)%7)).map(w=>`<button class="day" data-mday="${i}:${w}" aria-pressed="${!m.days||m.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div></div>`).join('')}</div>
+      <div class="erow ehead"><span>아이콘</span><span>사진</span><span>미션 이름</span><span>코인</span><span></span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">${pb.missions.map((m,i)=>`<div class="sitem"><div class="erow"><input class="ic" id="mi_${i}" value="${esc(m.ic)}" maxlength="4" aria-label="아이콘">${picBtn('m:'+m.id)}<input id="mn_${i}" value="${esc(m.nm)}" aria-label="미션 이름"><input id="mp_${i}" type="number" inputmode="numeric" min="0" max="200" value="${m.pt}" aria-label="코인"><button class="btn danger" data-mdel="${i}">삭제</button></div><div class="days"><span class="ehead" style="align-self:center;margin-right:4px">나오는 요일</span>${pb.days.slice().sort((a,b)=>((a+6)%7)-((b+6)%7)).map(w=>`<button class="day" data-mday="${i}:${w}" aria-pressed="${!m.days||m.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div></div>`).join('')}</div>
       <div class="trow"><button class="btn" id="mAdd">+ 미션 추가</button></div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">보상 상점 편집</h3>
       <p class="note">아이가 코인으로 바꿀 수 있는 보상이에요. 가격은 코인 단위예요.</p>
-      <div class="erow ehead"><span>아이콘</span><span>보상 이름</span><span>가격</span><span></span></div>
-      <div style="display:flex;flex-direction:column;gap:8px">${S.rewards.map((r,i)=>`<div class="erow"><input class="ic" id="ri_${i}" value="${esc(r.ic)}" maxlength="4" aria-label="아이콘"><input id="rn_${i}" value="${esc(r.nm)}" aria-label="보상 이름"><input id="rc_${i}" type="number" inputmode="numeric" min="1" max="9999" value="${r.cost}" aria-label="가격"><button class="btn danger" data-rdel="${i}">삭제</button></div>`).join('')}</div>
+      <div class="erow ehead"><span>아이콘</span><span>사진</span><span>보상 이름</span><span>가격</span><span></span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">${S.rewards.map((r,i)=>`<div class="erow"><input class="ic" id="ri_${i}" value="${esc(r.ic)}" maxlength="4" aria-label="아이콘">${picBtn('r:'+r.id)}<input id="rn_${i}" value="${esc(r.nm)}" aria-label="보상 이름"><input id="rc_${i}" type="number" inputmode="numeric" min="1" max="9999" value="${r.cost}" aria-label="가격"><button class="btn danger" data-rdel="${i}">삭제</button></div>`).join('')}</div>
       <div class="trow"><button class="btn" id="rAdd">+ 보상 추가</button></div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">레이서와 몬스터 사진</h3>
+      <p class="note">아이가 좋아하는 캐릭터 그림이나 사진을 넣을 수 있어요. 사진은 이 태블릿 안에만 저장되고 인터넷에 올라가지 않아요. 몬스터 사진은 아이가 그 몬스터를 얻은 뒤에 보여요. 사진을 지우려면 사진을 한 번 더 누르세요.</p>
+      <div class="picgrid"><div class="picitem"><div class="medal on" style="border-radius:16px">${kartSVG()}</div><b>레이서</b>${picBtn('kart')}</div>
+      ${BADGES.map(b=>`<div class="picitem"><div class="medal on">${monster(b.mon,true)}</div><b>${esc(b.nm)}</b>${picBtn('b:'+b.id)}</div>`).join('')}</div>
+      <p class="note">미션과 보상 사진은 위쪽 편집 칸의 "사진"에서 넣어요.</p></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">가족 일정</h3>
       <p class="note">요일을 눌러 반복할 날을 고르세요. 홈 화면에는 오늘 요일의 일정만 보여요.</p>
       <div style="display:flex;flex-direction:column;gap:10px" id="schList">${S.schedule.map((x,i)=>`<div class="sitem"><div class="srow">
@@ -583,6 +654,13 @@ function renderParent(){
   $('#bAdd').onclick=()=>{ collect(); const id='b'+Date.now(); S.blocks.push({id, name:'새 시간대', start:'15:00', end:'16:00', days:[1,2,3,4,5], missions:[]}); pBlock=id; save(); renderParent(); $('#n_'+id)?.focus(); };
   main.querySelectorAll('[data-bdel]').forEach(x=>{ x.onclick=()=>{ if(!x.dataset.arm){ x.dataset.arm=1; x.textContent='한 번 더 누르면 삭제'; setTimeout(()=>{ if(x.isConnected){ delete x.dataset.arm; x.textContent='삭제'; } },3000); return; }
     collect(); S.blocks=S.blocks.filter(b=>b.id!==x.dataset.bdel); if(!S.blocks.length) S.blocks.push({id:'b'+Date.now(), name:'새 시간대', start:'15:00', end:'16:00', days:[1,2,3,4,5], missions:[]}); save(); questTab=null; renderParent(); toast('시간대를 지웠어요'); }; });
+  main.querySelectorAll('[data-pic]').forEach(x=>x.onclick=()=>{ const k=x.dataset.pic;
+    if(S.img[k]){ if(!x.dataset.arm){ x.dataset.arm=1; x.innerHTML='지우기?'; setTimeout(()=>{ if(x.isConnected) renderParent(); },2500); return; } collect(); delete S.img[k]; save(); renderParent(); return; }
+    const f=document.createElement('input'); f.type='file'; f.accept='image/*';
+    f.onchange=()=>{ const file=f.files&&f.files[0]; if(!file) return; const rd=new FileReader(); rd.onload=()=>{ const im=new Image(); im.onload=()=>{
+      const N=192, c=document.createElement('canvas'); c.width=c.height=N; const g=c.getContext('2d'); const sc=Math.max(N/im.width,N/im.height); const w=im.width*sc, h=im.height*sc; g.fillStyle='#fff'; g.fillRect(0,0,N,N); g.drawImage(im,(N-w)/2,(N-h)/2,w,h);
+      collect(); S.img[k]=c.toDataURL('image/jpeg',.85); save(); renderParent(); toast('사진을 넣었어요'); }; im.onerror=()=>toast('이 파일은 사진으로 쓸 수 없어요'); im.src=rd.result; }; rd.readAsDataURL(file); };
+    f.click(); });
   const collect=()=>{ collectME(); S.blocks.forEach(b=>{ const n=$('#n_'+b.id); if(n) b.name=n.value.trim()||'시간대'; const st=$('#s_'+b.id), en=$('#e_'+b.id); if(st&&st.value) b.start=st.value; if(en&&en.value) b.end=en.value; }); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
   main.querySelectorAll('[data-sday]').forEach(b=>b.onclick=()=>{ const [i,w]=b.dataset.sday.split(':').map(Number); const ds=S.schedule[i].days; const k=ds.indexOf(w); k<0?ds.push(w):ds.splice(k,1); b.setAttribute('aria-pressed',k<0); });
   main.querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{ collect(); S.schedule.splice(Number(b.dataset.sdel),1); save(); renderParent(); });
@@ -620,7 +698,7 @@ function complete(id, el){
   const fresh=checkBadges(); save(); render();
   if(chest) setTimeout(()=>modal('🧰','보물상자 획득!',`${b.name}을(를) 시간 안에 모두 끝냈어! 보너스 +${CHEST} 코인`),400);
   else if(ms(b,new Date().getDay()).every(x=>day.done[x.id])) setTimeout(()=>modal('👍','다 했어!',`${b.name} 완료. 다음엔 ${b.end} 전에 끝내서 보물상자를 열어 보자!`),400);
-  if(fresh.length) setTimeout(()=>{const bd=BADGES.find(x=>x.id===fresh[0]); if(!$('#modalRoot').innerHTML) modal(bd.ic,'새 배지: '+bd.nm,bd.desc); else toast('새 배지: '+bd.nm);},chest?1200:500);
+  if(fresh.length) setTimeout(()=>{const bd=BADGES.find(x=>x.id===fresh[0]); if(!$('#modalRoot').innerHTML) modal(badgeArt(bd),'새 몬스터 '+bd.nm+'!',bd.desc+' 성공으로 도감에 들어왔어.'); else toast('새 몬스터: '+bd.nm);},chest?1200:500);
 }
 function undo(id){
   const day=today(); const d=day.done[id]; if(!d) return;
@@ -637,7 +715,7 @@ main.addEventListener('pointerdown',e=>{
   const h=e.target.closest('[data-hold]'); if(!h||h.disabled) return;
   const fill=h.querySelector('.fill'); const t0=performance.now();
   const step=now=>{ const p=Math.min(1,(now-t0)/1500); fill.style.width=(p*100)+'%';
-    if(p>=1){ holdT=null; const r=S.rewards.find(x=>x.id===h.dataset.hold); if(!r) return; if(S.coins>=r.cost){ S.coins-=r.cost; S.redeemed.push({nm:r.nm,date:dkey(new Date())}); save(); ding(true); render(); modal(r.ic,r.nm+' 교환!','열심히 모은 코인으로 얻었어. 멋지다!'); } return; }
+    if(p>=1){ holdT=null; const r=S.rewards.find(x=>x.id===h.dataset.hold); if(!r) return; if(S.coins>=r.cost){ S.coins-=r.cost; S.redeemed.push({nm:r.nm,date:dkey(new Date())}); save(); ding(true); render(); modal(ico('r:'+r.id,r.ic),r.nm+' 교환!','열심히 모은 코인으로 얻었어. 멋지다!'); } return; }
     holdT=requestAnimationFrame(step); };
   holdT=requestAnimationFrame(step);
   const stop=()=>{ if(holdT){cancelAnimationFrame(holdT);holdT=null;fill.style.width='0';} h.removeEventListener('pointerup',stop);h.removeEventListener('pointerleave',stop);h.removeEventListener('pointercancel',stop);};
