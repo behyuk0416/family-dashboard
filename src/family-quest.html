@@ -100,6 +100,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .days{display:flex;gap:4px;flex-wrap:wrap;grid-column:1/-1}
 .day{width:38px;height:34px;border-radius:10px;border:2px solid var(--line);font-weight:800;font-size:14px;background:var(--card)}
 .day[aria-pressed="true"]{background:var(--violet);border-color:var(--violet-d);color:#fff}
+.erow{display:grid;grid-template-columns:64px 1fr 110px auto;gap:8px;align-items:center}
+.erow input{font:inherit;font-size:16px;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);min-width:0;user-select:text;-webkit-user-select:text}
+.erow input.ic{text-align:center;font-size:24px;padding:4px}
+.ehead{font-size:12px;font-weight:800;color:var(--ink2);letter-spacing:.04em}
 .sitem{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;background:var(--mute)}
 .geo{display:flex;gap:8px;flex-wrap:wrap}
 .sis h3,.badges-mini h3{font-size:24px}
@@ -275,7 +279,7 @@ const BADGES = [
 ];
 
 // ---------- state ----------
-function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS)), days:{}, sis:{}, redeemed:[], badges:[],
+function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS)), days:{}, sis:{}, redeemed:[], badges:[], rewards:JSON.parse(JSON.stringify(REWARDS)),
   schedule:[
     {id:'s1', time:'19:00', who:'아빠', text:'퇴근해서 집 도착 (예시)', days:[1,2,3,4,5]},
     {id:'s2', time:'16:00', who:'아들', text:'학원 가는 날 (예시)', days:[2,4]},
@@ -483,7 +487,7 @@ function renderQuest(){
 }
 
 function renderReward(){
-  const shop=REWARDS.map(r=>`<div class="panel item"><span class="ic">${r.ic}</span><h3>${esc(r.nm)}</h3>
+  const shop=S.rewards.map(r=>`<div class="panel item"><span class="ic">${r.ic}</span><h3>${esc(r.nm)}</h3>
     <div class="price"><span class="chip" style="padding:2px 10px 2px 4px;font-size:18px;border-width:2px"><span class="coin" style="width:24px;height:24px;font-size:12px">₩</span>${r.cost}</span></div>
     <button class="hold" data-hold="${r.id}" ${S.coins<r.cost?'disabled':''}><span class="fill"></span><span>${S.coins<r.cost?`${r.cost-S.coins}코인 더 모으기`:'부모님이 꾹 눌러서 교환'}</span></button></div>`).join('');
   const bd=BADGES.map(b=>`<div class="panel bd"><div class="medal ${S.badges.includes(b.id)?'on':''}">${b.ic}</div><b>${esc(b.nm)}</b><small>${esc(b.desc)}</small></div>`).join('');
@@ -501,7 +505,7 @@ function renderReward(){
   </section>`;
 }
 
-let parentOk=false;
+let parentOk=false, pBlock=null;
 function renderParent(){
   if(!parentOk){
     const a=6+Math.floor(Math.random()*4), b=6+Math.floor(Math.random()*4);
@@ -512,6 +516,7 @@ function renderParent(){
     $('#pGo').onclick=()=>{ if(Number($('#pAns').value)===a*b){parentOk=true;renderParent();} else $('#pErr').textContent='답이 달라요. 다시 입력해 주세요.'; };
     return;
   }
+  const pb=S.blocks.find(b=>b.id===pBlock)||S.blocks[0]; pBlock=pb.id;
   const times=S.blocks.map(b=>`<div class="field"><span class="label">${esc(b.name)} · <span id="bl_${b.id}">${dayLabel(b.days)}</span></span><div class="days" style="margin-bottom:4px">${[1,2,3,4,5,6,0].map(w=>`<button class="day" data-bday="${b.id}:${w}" aria-pressed="${b.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div></div>`).join('');
   main.innerHTML=`<section class="screen">
     <h2 style="font-size:30px">부모 모드</h2>
@@ -520,6 +525,17 @@ function renderParent(){
       <div class="field"><label class="label" for="sisName">딸 이름(호칭)</label><input id="sisName" value="${esc(S.sisName)}"></div></div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">시간대와 요일</h3><p class="note">요일을 눌러 그 시간대 미션이 나오는 날을 정해요. 평일엔 등교·하교 미션, 주말엔 주말 미션이 나와요.</p><div class="form">${times}</div>
       <p class="note">미션을 시간 안에 모두 끝내면 미션마다 +${ON_TIME_BONUS} 코인, 시간대를 다 끝내면 보물상자 +${CHEST} 코인을 줘요. 시간이 지나도 기본 코인은 받아요.</p></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">미션 편집</h3>
+      <p class="note">시간대를 고른 뒤 미션 이름, 아이콘(이모지), 코인을 바꾸세요. 시간 안에 하면 +${ON_TIME_BONUS} 코인이 자동으로 더해져요.</p>
+      <div class="tabs">${S.blocks.map(b=>`<button class="tab" aria-selected="${b.id===pb.id}" data-pblock="${b.id}"><b style="font-size:18px">${esc(b.name)}</b><span>${dayLabel(b.days)} · ${b.missions.length}개</span></button>`).join('')}</div>
+      <div class="erow ehead"><span>아이콘</span><span>미션 이름</span><span>코인</span><span></span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">${pb.missions.map((m,i)=>`<div class="erow"><input class="ic" id="mi_${i}" value="${esc(m.ic)}" maxlength="4" aria-label="아이콘"><input id="mn_${i}" value="${esc(m.nm)}" aria-label="미션 이름"><input id="mp_${i}" type="number" inputmode="numeric" min="0" max="200" value="${m.pt}" aria-label="코인"><button class="btn danger" data-mdel="${i}">삭제</button></div>`).join('')}</div>
+      <div class="trow"><button class="btn" id="mAdd">+ 미션 추가</button></div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">보상 상점 편집</h3>
+      <p class="note">아이가 코인으로 바꿀 수 있는 보상이에요. 가격은 코인 단위예요.</p>
+      <div class="erow ehead"><span>아이콘</span><span>보상 이름</span><span>가격</span><span></span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">${S.rewards.map((r,i)=>`<div class="erow"><input class="ic" id="ri_${i}" value="${esc(r.ic)}" maxlength="4" aria-label="아이콘"><input id="rn_${i}" value="${esc(r.nm)}" aria-label="보상 이름"><input id="rc_${i}" type="number" inputmode="numeric" min="1" max="9999" value="${r.cost}" aria-label="가격"><button class="btn danger" data-rdel="${i}">삭제</button></div>`).join('')}</div>
+      <div class="trow"><button class="btn" id="rAdd">+ 보상 추가</button></div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">가족 일정</h3>
       <p class="note">요일을 눌러 반복할 날을 고르세요. 홈 화면에는 오늘 요일의 일정만 보여요.</p>
       <div style="display:flex;flex-direction:column;gap:10px" id="schList">${S.schedule.map((x,i)=>`<div class="sitem"><div class="srow">
@@ -534,10 +550,19 @@ function renderParent(){
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">코인 조정</h3>
       <div class="trow" style="flex-wrap:wrap"><button class="btn" data-adj="-10">−10</button><button class="btn" data-adj="10">+10</button><button class="btn" data-adj="50">+50 (특별 칭찬)</button><span class="num" style="font-weight:800">현재 ${S.coins} 코인</span></div></div>
     <div class="trow" style="flex-wrap:wrap"><button class="btn primary" id="pSave">저장</button><button class="btn danger" id="pResetDay">오늘 체크 초기화</button><button class="btn danger" id="pResetAll">전체 초기화</button><button class="btn" id="pLock">잠그기</button></div>
-    <p class="note">기록은 이 태블릿의 브라우저에만 저장돼요. 브라우저 데이터를 지우면 함께 사라져요.</p>
+    <p class="note">입력칸을 고치면 바로 저장돼요. 기록은 이 태블릿의 브라우저에만 저장돼요. 브라우저 데이터를 지우면 함께 사라져요.</p>
   </section>`;
   main.querySelectorAll('[data-bday]').forEach(x=>x.onclick=()=>{ const [id,w]=x.dataset.bday.split(':'); const b=S.blocks.find(y=>y.id===id); const k=b.days.indexOf(+w); k<0?b.days.push(+w):b.days.splice(k,1); x.setAttribute('aria-pressed',k<0); $('#bl_'+id).textContent=b.days.length?dayLabel(b.days):'쉬는 시간대'; save(); questTab=null; });
-  const collect=()=>{ S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
+  const collectME=()=>{
+    pb.missions.forEach((m,i)=>{ m.ic=$('#mi_'+i).value.trim()||'⭐'; m.nm=$('#mn_'+i).value.trim()||'새 미션'; m.pt=Math.max(0,Math.min(200,parseInt($('#mp_'+i).value)||0)); });
+    S.rewards.forEach((r,i)=>{ r.ic=$('#ri_'+i).value.trim()||'🎁'; r.nm=$('#rn_'+i).value.trim()||'새 보상'; r.cost=Math.max(1,parseInt($('#rc_'+i).value)||1); });
+  };
+  main.querySelectorAll('[data-pblock]').forEach(b=>b.onclick=()=>{ collect(); pBlock=b.dataset.pblock; renderParent(); });
+  main.querySelectorAll('[data-mdel]').forEach(b=>b.onclick=()=>{ collect(); pb.missions.splice(+b.dataset.mdel,1); save(); renderParent(); });
+  main.querySelectorAll('[data-rdel]').forEach(b=>b.onclick=()=>{ collect(); S.rewards.splice(+b.dataset.rdel,1); save(); renderParent(); });
+  $('#mAdd').onclick=()=>{ collect(); pb.missions.push({id:'m'+Date.now(), ic:'⭐', nm:'', pt:10}); renderParent(); $('#mn_'+(pb.missions.length-1))?.focus(); };
+  $('#rAdd').onclick=()=>{ collect(); S.rewards.push({id:'r'+Date.now(), ic:'🎁', nm:'', cost:50}); renderParent(); $('#rn_'+(S.rewards.length-1))?.focus(); };
+  const collect=()=>{ collectME(); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
   main.querySelectorAll('[data-sday]').forEach(b=>b.onclick=()=>{ const [i,w]=b.dataset.sday.split(':').map(Number); const ds=S.schedule[i].days; const k=ds.indexOf(w); k<0?ds.push(w):ds.splice(k,1); b.setAttribute('aria-pressed',k<0); });
   main.querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{ collect(); S.schedule.splice(Number(b.dataset.sdel),1); save(); renderParent(); });
   $('#sAdd').onclick=()=>{ collect(); S.schedule.push({id:'s'+Date.now(), time:'18:00', who:'', text:'', days:[1,2,3,4,5]}); renderParent(); const i=S.schedule.length-1; $('#sx_'+i)?.focus(); };
@@ -547,8 +572,10 @@ function renderParent(){
       box.innerHTML=j.results.map((g,i)=>`<button class="btn" data-geo="${i}">${esc(g.name)}${g.admin1?' · '+esc(g.admin1):''}</button>`).join('');
       box.querySelectorAll('[data-geo]').forEach(b=>b.onclick=()=>{ const g=j.results[Number(b.dataset.geo)]; collect(); S.loc={name:g.name, lat:g.latitude, lon:g.longitude}; save(); wxState='loading'; WX=null; loadWeather(); toast(g.name+'(으)로 바꿨어요'); renderParent(); });
     }catch(e){ box.textContent='지역 검색은 태블릿용 설치 주소에서만 돼요.'; } };
-  $('#pSave').onclick=()=>{ collect(); S.kidName=$('#kidName').value.trim()||'모험가'; S.sisName=$('#sisName').value.trim()||'막내';
-    S.blocks.forEach(b=>{b.start=$('#s_'+b.id).value||b.start;b.end=$('#e_'+b.id).value||b.end;}); save(); toast('저장했어요'); };
+  const saveAll=()=>{ collect(); S.kidName=$('#kidName').value.trim()||'모험가'; S.sisName=$('#sisName').value.trim()||'막내';
+    S.blocks.forEach(b=>{b.start=$('#s_'+b.id).value||b.start;b.end=$('#e_'+b.id).value||b.end;}); save(); };
+  $('#pSave').onclick=()=>{ saveAll(); toast('저장했어요'); };
+  main.onchange=e=>{ if(view==='parent' && parentOk && e.target.matches('input')) saveAll(); };
   main.querySelectorAll('[data-adj]').forEach(x=>x.onclick=()=>{S.coins=Math.max(0,S.coins+Number(x.dataset.adj)); if(Number(x.dataset.adj)>0) S.xp+=Number(x.dataset.adj); save(); renderParent();});
   const twoStep=(btn,fn)=>{ btn.onclick=()=>{ if(btn.dataset.arm){fn();} else {btn.dataset.arm=1; btn.textContent='한 번 더 누르면 실행'; setTimeout(()=>{delete btn.dataset.arm;renderParent();},3000);} }; };
   twoStep($('#pResetDay'),()=>{S.days[dkey(new Date())]={done:{},chest:{}};save();toast('오늘 체크를 초기화했어요');renderParent();});
@@ -589,7 +616,7 @@ main.addEventListener('pointerdown',e=>{
   const h=e.target.closest('[data-hold]'); if(!h||h.disabled) return;
   const fill=h.querySelector('.fill'); const t0=performance.now();
   const step=now=>{ const p=Math.min(1,(now-t0)/1500); fill.style.width=(p*100)+'%';
-    if(p>=1){ holdT=null; const r=REWARDS.find(x=>x.id===h.dataset.hold); if(S.coins>=r.cost){ S.coins-=r.cost; S.redeemed.push({nm:r.nm,date:dkey(new Date())}); save(); ding(true); render(); modal(r.ic,r.nm+' 교환!','열심히 모은 코인으로 얻었어. 멋지다!'); } return; }
+    if(p>=1){ holdT=null; const r=S.rewards.find(x=>x.id===h.dataset.hold); if(!r) return; if(S.coins>=r.cost){ S.coins-=r.cost; S.redeemed.push({nm:r.nm,date:dkey(new Date())}); save(); ding(true); render(); modal(r.ic,r.nm+' 교환!','열심히 모은 코인으로 얻었어. 멋지다!'); } return; }
     holdT=requestAnimationFrame(step); };
   holdT=requestAnimationFrame(step);
   const stop=()=>{ if(holdT){cancelAnimationFrame(holdT);holdT=null;fill.style.width='0';} h.removeEventListener('pointerup',stop);h.removeEventListener('pointerleave',stop);h.removeEventListener('pointercancel',stop);};
