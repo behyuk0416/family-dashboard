@@ -104,6 +104,15 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .erow input{font:inherit;font-size:16px;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);min-width:0;user-select:text;-webkit-user-select:text}
 .erow input.ic{text-align:center;font-size:24px;padding:4px}
 .ehead{font-size:12px;font-weight:800;color:var(--ink2);letter-spacing:.04em}
+.week{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:8px;overflow-x:auto;padding-bottom:4px}
+.wcol{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:14px;background:var(--mute);min-width:0}
+.wcol.today{outline:3px solid var(--violet);outline-offset:-3px}
+.wcol .wd{font-family:var(--f-display);font-weight:400;font-size:20px;text-align:center}
+.wblk{display:flex;flex-direction:column;gap:2px;text-align:left;padding:8px;border-radius:10px;background:var(--card);border:2px solid var(--line)}
+.wblk span{font-size:12px;color:var(--ink2);font-weight:800}
+.wblk b{font-size:14px}
+.wblk small{font-size:12px;color:var(--ink2);line-height:1.5}
+.wsc{font-size:12px;font-weight:700;padding:6px 8px;border-radius:10px;background:#EFEAFF;color:var(--violet-d)}
 .sitem{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;background:var(--mute)}
 .geo{display:flex;gap:8px;flex-wrap:wrap}
 .sis h3,.badges-mini h3{font-size:24px}
@@ -296,7 +305,8 @@ if(S.blocks.some(b=>!b.days)){
   save();
 }
 const wdOf=k=>{ const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d).getDay(); };
-const blocksFor=wd=>S.blocks.filter(b=>b.days.includes(wd)).sort((a,b)=>toMin(a.start)-toMin(b.start));
+const ms=(b,wd)=>b.missions.filter(m=>!m.days||m.days.includes(wd));
+const blocksFor=wd=>S.blocks.filter(b=>b.days.includes(wd)&&ms(b,wd).length).sort((a,b)=>toMin(a.start)-toMin(b.start));
 const todayBlocks=()=>blocksFor(new Date().getDay());
 const dayLabel=ds=>{ const s=[...ds].sort().join(''); return s==='0123456'?'매일':s==='12345'?'평일':s==='06'?'주말':ds.slice().sort((a,b)=>((a+6)%7)-((b+6)%7)).map(w=>'일월화수목금토'[w]).join('·'); };
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -344,7 +354,7 @@ function today(){ const k=dkey(new Date()); if(!S.days[k]) S.days[k]={done:{},ch
 function level(){ const lv=Math.floor(S.xp/200); return {lv:lv+1, title:LEVELS[Math.min(lv,LEVELS.length-1)], into:S.xp%200}; }
 
 function blockStatus(b, day=today(), isToday=true){
-  const done=b.missions.filter(m=>day.done[m.id]).length, total=b.missions.length;
+  const list=ms(b,new Date().getDay()); const done=list.filter(m=>day.done[m.id]).length, total=list.length;
   const n=nowMin(), s=toMin(b.start), e=toMin(b.end);
   if(done===total) return {done,total,st: day.chest[b.id] ? 'clear':'late'};
   if(!isToday) return {done,total,st:'missed'};
@@ -380,7 +390,7 @@ function checkBadges(){
   if(total>=1) earn.push('first');
   if(days.some(d=>d.chest&&(d.chest.morning||d.chest.wkmorning))) earn.push('morning');
   if(days.some(d=>d.chest&&d.chest.after)) earn.push('study');
-  if(Object.entries(S.days).some(([k,d])=>{const bs=blocksFor(wdOf(k)); return bs.length&&bs.every(b=>b.missions.every(m=>d.done[m.id]));})) earn.push('allclear');
+  if(Object.entries(S.days).some(([k,d])=>{const bs=blocksFor(wdOf(k)); return bs.length&&bs.every(b=>ms(b,wdOf(k)).every(m=>d.done[m.id]));})) earn.push('allclear');
   if(days.filter(d=>d.done.read).length>=5) earn.push('reader5');
   const st=streak(); if(st>=3) earn.push('streak3'); if(st>=7) earn.push('streak7');
   if(days.filter(d=>d.done.sister).length>=5) earn.push('kind');
@@ -426,7 +436,7 @@ function renderHome(){
   let nq='';
   if(cb){
     const st=blockStatus(cb), pct=Math.round(st.done/st.total*100);
-    const next=cb.missions.find(m=>!day.done[m.id]);
+    const next=ms(cb,new Date().getDay()).find(m=>!day.done[m.id]);
     const sub = st.st==='active' ? `<div class="left">보물상자까지 ${Math.floor(st.left/60)?Math.floor(st.left/60)+'시간 ':''}${st.left%60}분 남았어!</div>`
               : st.st==='upcoming' ? `<div class="label">${cb.start} 시작</div>` : `<div class="label">${ST_LABEL[st.st]}</div>`;
     nq=`<div class="panel now-quest">
@@ -472,8 +482,8 @@ function renderQuest(){
   if(!tb.length){ main.innerHTML=`<section class="screen">${hud()}<div class="panel"><h2>오늘은 쉬는 날이야</h2><p class="note">오늘 요일에 정해진 미션이 없어요. 부모 모드에서 요일을 정할 수 있어요.</p></div></section>`; return; }
   const b=tb.find(x=>x.id===questTab)||tb[0];
   const st=blockStatus(b);
-  const tabs=tb.map(x=>`<button class="tab" role="tab" aria-selected="${x.id===b.id}" data-tab="${x.id}"><b>${esc(x.name)}</b><span class="num">${x.start} – ${x.end} · ${blockStatus(x).done}/${x.missions.length}</span></button>`).join('');
-  const cards=b.missions.map(m=>{const d=day.done[m.id];return `<div class="m ${d?'done':''}" role="button" tabindex="0" data-m="${m.id}">
+  const tabs=tb.map(x=>`<button class="tab" role="tab" aria-selected="${x.id===b.id}" data-tab="${x.id}"><b>${esc(x.name)}</b><span class="num">${x.start} – ${x.end} · ${blockStatus(x).done}/${blockStatus(x).total}</span></button>`).join('');
+  const cards=ms(b,new Date().getDay()).map(m=>{const d=day.done[m.id];return `<div class="m ${d?'done':''}" role="button" tabindex="0" data-m="${m.id}">
       <span class="ic">${m.ic}</span><span class="nm">${esc(m.nm)}</span><span class="pt">+${m.pt} 코인${d?'':` · 제시간 +${ON_TIME_BONUS}`}</span>
       ${d?`<span class="stamp ${d.onTime?'':'late'}">${d.onTime?'성공!':'완료'}</span><button class="undo" data-undo="${m.id}">되돌리기</button>`:''}</div>`;}).join('');
   const msg = st.st==='active' ? `${b.end}까지 모두 끝내면 보물상자 +${CHEST} 코인!` : st.st==='upcoming' ? `${b.start}에 시작해. 미리 해도 괜찮아!` : st.st==='clear'?'시간 안에 클리어! 보물상자를 열었어.':st.st==='late'?'다 했어! 다음엔 시간 안에 도전!':'시간은 지났지만 지금 해도 코인을 받을 수 있어.';
@@ -517,19 +527,25 @@ function renderParent(){
     return;
   }
   const pb=S.blocks.find(b=>b.id===pBlock)||S.blocks[0]; pBlock=pb.id;
-  const times=S.blocks.map(b=>`<div class="field"><span class="label">${esc(b.name)} · <span id="bl_${b.id}">${dayLabel(b.days)}</span></span><div class="days" style="margin-bottom:4px">${[1,2,3,4,5,6,0].map(w=>`<button class="day" data-bday="${b.id}:${w}" aria-pressed="${b.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div></div>`).join('');
+  const times=S.blocks.map(b=>`<div class="field sitem"><div class="trow"><input id="n_${b.id}" value="${esc(b.name)}" aria-label="시간대 이름" style="font-weight:800"><button class="btn danger" data-bdel="${b.id}">삭제</button></div><span class="label">나오는 요일 · <span id="bl_${b.id}">${dayLabel(b.days)}</span></span><div class="days" style="margin-bottom:4px">${[1,2,3,4,5,6,0].map(w=>`<button class="day" data-bday="${b.id}:${w}" aria-pressed="${b.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div></div>`).join('');
   main.innerHTML=`<section class="screen">
     <h2 style="font-size:30px">부모 모드</h2>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">요일별 계획표</h3>
+      <p class="note">한 주 동안 요일마다 아이에게 어떤 미션과 일정이 나오는지 보여 줘요. 시간대를 누르면 아래에서 그 미션을 고칠 수 있어요.</p>
+      <div class="week">${[1,2,3,4,5,6,0].map(w=>{ const bs=blocksFor(w); const sc=S.schedule.filter(x=>x.time&&x.days.includes(w)).sort((a,b)=>toMin(a.time)-toMin(b.time));
+        return `<div class="wcol ${w===new Date().getDay()?'today':''}"><b class="wd">${'일월화수목금토'[w]}</b>
+        ${bs.map(b=>`<button class="wblk" data-wblock="${b.id}"><span class="num">${b.start}–${b.end}</span><b>${esc(b.name)}</b><small>${ms(b,w).map(m=>esc(m.ic+' '+m.nm)).join('<br>')}</small></button>`).join('')||'<small class="note">미션 없음</small>'}
+        ${sc.map(x=>`<div class="wsc"><span class="num">${x.time}</span> ${esc(x.who)} ${esc(x.text)}</div>`).join('')}</div>`; }).join('')}</div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">이름</h3>
       <div class="form"><div class="field"><label class="label" for="kidName">아들 이름(호칭)</label><input id="kidName" value="${esc(S.kidName)}"></div>
       <div class="field"><label class="label" for="sisName">딸 이름(호칭)</label><input id="sisName" value="${esc(S.sisName)}"></div></div></div>
-    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">시간대와 요일</h3><p class="note">요일을 눌러 그 시간대 미션이 나오는 날을 정해요. 평일엔 등교·하교 미션, 주말엔 주말 미션이 나와요.</p><div class="form">${times}</div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">시간대와 요일</h3><p class="note">요일을 눌러 그 시간대 미션이 나오는 날을 정해요. 요일마다 시간이 다르면 시간대를 하나 더 만들어 요일을 나눠 주세요.</p><div class="form">${times}</div><div class="trow" style="flex-wrap:wrap"><button class="btn" id="bAdd">+ 시간대 추가</button><span class="note">예: 화·목 학원 가는 날만 쓰는 "학원 다녀와서" 시간대</span></div>
       <p class="note">미션을 시간 안에 모두 끝내면 미션마다 +${ON_TIME_BONUS} 코인, 시간대를 다 끝내면 보물상자 +${CHEST} 코인을 줘요. 시간이 지나도 기본 코인은 받아요.</p></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">미션 편집</h3>
       <p class="note">시간대를 고른 뒤 미션 이름, 아이콘(이모지), 코인을 바꾸세요. 시간 안에 하면 +${ON_TIME_BONUS} 코인이 자동으로 더해져요.</p>
-      <div class="tabs">${S.blocks.map(b=>`<button class="tab" aria-selected="${b.id===pb.id}" data-pblock="${b.id}"><b style="font-size:18px">${esc(b.name)}</b><span>${dayLabel(b.days)} · ${b.missions.length}개</span></button>`).join('')}</div>
+      <div class="tabs">${S.blocks.map(b=>`<button class="tab" aria-selected="${b.id===pb.id}" data-pblock="${b.id}"><b style="font-size:18px">${esc(b.name)}</b><span>${b.days.length?dayLabel(b.days):'요일 없음'} · ${b.missions.length}개</span></button>`).join('')}</div>
       <div class="erow ehead"><span>아이콘</span><span>미션 이름</span><span>코인</span><span></span></div>
-      <div style="display:flex;flex-direction:column;gap:8px">${pb.missions.map((m,i)=>`<div class="erow"><input class="ic" id="mi_${i}" value="${esc(m.ic)}" maxlength="4" aria-label="아이콘"><input id="mn_${i}" value="${esc(m.nm)}" aria-label="미션 이름"><input id="mp_${i}" type="number" inputmode="numeric" min="0" max="200" value="${m.pt}" aria-label="코인"><button class="btn danger" data-mdel="${i}">삭제</button></div>`).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">${pb.missions.map((m,i)=>`<div class="sitem"><div class="erow"><input class="ic" id="mi_${i}" value="${esc(m.ic)}" maxlength="4" aria-label="아이콘"><input id="mn_${i}" value="${esc(m.nm)}" aria-label="미션 이름"><input id="mp_${i}" type="number" inputmode="numeric" min="0" max="200" value="${m.pt}" aria-label="코인"><button class="btn danger" data-mdel="${i}">삭제</button></div><div class="days"><span class="ehead" style="align-self:center;margin-right:4px">나오는 요일</span>${pb.days.slice().sort((a,b)=>((a+6)%7)-((b+6)%7)).map(w=>`<button class="day" data-mday="${i}:${w}" aria-pressed="${!m.days||m.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div></div>`).join('')}</div>
       <div class="trow"><button class="btn" id="mAdd">+ 미션 추가</button></div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">보상 상점 편집</h3>
       <p class="note">아이가 코인으로 바꿀 수 있는 보상이에요. 가격은 코인 단위예요.</p>
@@ -562,7 +578,12 @@ function renderParent(){
   main.querySelectorAll('[data-rdel]').forEach(b=>b.onclick=()=>{ collect(); S.rewards.splice(+b.dataset.rdel,1); save(); renderParent(); });
   $('#mAdd').onclick=()=>{ collect(); pb.missions.push({id:'m'+Date.now(), ic:'⭐', nm:'', pt:10}); renderParent(); $('#mn_'+(pb.missions.length-1))?.focus(); };
   $('#rAdd').onclick=()=>{ collect(); S.rewards.push({id:'r'+Date.now(), ic:'🎁', nm:'', cost:50}); renderParent(); $('#rn_'+(S.rewards.length-1))?.focus(); };
-  const collect=()=>{ collectME(); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
+  main.querySelectorAll('[data-mday]').forEach(x=>x.onclick=()=>{ const [i,w]=x.dataset.mday.split(':').map(Number); const m=pb.missions[i]; if(!m.days) m.days=pb.days.slice(); const k=m.days.indexOf(w); k<0?m.days.push(w):m.days.splice(k,1); if(pb.days.every(d=>m.days.includes(d))) delete m.days; x.setAttribute('aria-pressed',k<0); save(); });
+  main.querySelectorAll('[data-wblock]').forEach(x=>x.onclick=()=>{ collect(); pBlock=x.dataset.wblock; renderParent(); document.getElementById('mAdd')?.scrollIntoView({block:'center'}); });
+  $('#bAdd').onclick=()=>{ collect(); const id='b'+Date.now(); S.blocks.push({id, name:'새 시간대', start:'15:00', end:'16:00', days:[1,2,3,4,5], missions:[]}); pBlock=id; save(); renderParent(); $('#n_'+id)?.focus(); };
+  main.querySelectorAll('[data-bdel]').forEach(x=>{ x.onclick=()=>{ if(!x.dataset.arm){ x.dataset.arm=1; x.textContent='한 번 더 누르면 삭제'; setTimeout(()=>{ if(x.isConnected){ delete x.dataset.arm; x.textContent='삭제'; } },3000); return; }
+    collect(); S.blocks=S.blocks.filter(b=>b.id!==x.dataset.bdel); if(!S.blocks.length) S.blocks.push({id:'b'+Date.now(), name:'새 시간대', start:'15:00', end:'16:00', days:[1,2,3,4,5], missions:[]}); save(); questTab=null; renderParent(); toast('시간대를 지웠어요'); }; });
+  const collect=()=>{ collectME(); S.blocks.forEach(b=>{ const n=$('#n_'+b.id); if(n) b.name=n.value.trim()||'시간대'; const st=$('#s_'+b.id), en=$('#e_'+b.id); if(st&&st.value) b.start=st.value; if(en&&en.value) b.end=en.value; }); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
   main.querySelectorAll('[data-sday]').forEach(b=>b.onclick=()=>{ const [i,w]=b.dataset.sday.split(':').map(Number); const ds=S.schedule[i].days; const k=ds.indexOf(w); k<0?ds.push(w):ds.splice(k,1); b.setAttribute('aria-pressed',k<0); });
   main.querySelectorAll('[data-sdel]').forEach(b=>b.onclick=()=>{ collect(); S.schedule.splice(Number(b.dataset.sdel),1); save(); renderParent(); });
   $('#sAdd').onclick=()=>{ collect(); S.schedule.push({id:'s'+Date.now(), time:'18:00', who:'', text:'', days:[1,2,3,4,5]}); renderParent(); const i=S.schedule.length-1; $('#sx_'+i)?.focus(); };
@@ -595,10 +616,10 @@ function complete(id, el){
   const r=el.getBoundingClientRect(); flyAt(r.left+r.width/2, r.top+r.height/3, `+${gain}`);
   ding(true);
   let chest=false;
-  if(b.missions.every(x=>day.done[x.id]) && onTime && !day.chest[b.id]){ day.chest[b.id]=true; S.coins+=CHEST; S.xp+=CHEST; chest=true; }
+  if(ms(b,new Date().getDay()).every(x=>day.done[x.id]) && onTime && !day.chest[b.id]){ day.chest[b.id]=true; S.coins+=CHEST; S.xp+=CHEST; chest=true; }
   const fresh=checkBadges(); save(); render();
   if(chest) setTimeout(()=>modal('🧰','보물상자 획득!',`${b.name}을(를) 시간 안에 모두 끝냈어! 보너스 +${CHEST} 코인`),400);
-  else if(b.missions.every(x=>day.done[x.id])) setTimeout(()=>modal('👍','다 했어!',`${b.name} 완료. 다음엔 ${b.end} 전에 끝내서 보물상자를 열어 보자!`),400);
+  else if(ms(b,new Date().getDay()).every(x=>day.done[x.id])) setTimeout(()=>modal('👍','다 했어!',`${b.name} 완료. 다음엔 ${b.end} 전에 끝내서 보물상자를 열어 보자!`),400);
   if(fresh.length) setTimeout(()=>{const bd=BADGES.find(x=>x.id===fresh[0]); if(!$('#modalRoot').innerHTML) modal(bd.ic,'새 배지: '+bd.nm,bd.desc); else toast('새 배지: '+bd.nm);},chest?1200:500);
 }
 function undo(id){
