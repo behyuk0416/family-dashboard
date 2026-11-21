@@ -86,7 +86,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .cp{position:absolute;top:6px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#fff;background:var(--violet);padding:1px 7px;border-radius:999px;white-space:nowrap}
 .cp.ok{background:var(--grass)}
 .cp::after{content:"";position:absolute;left:50%;top:100%;height:70px;border-left:2px dotted rgba(255,255,255,.5)}
-.kart{position:absolute;bottom:4px;width:96px;height:72px;transition:left .8s cubic-bezier(.3,1.4,.5,1)}
+.kart{position:absolute;bottom:2px;width:112px;height:78px;transition:left .8s cubic-bezier(.3,1.4,.5,1)}
 .kart svg{width:100%;height:100%;display:block}
 .pic{width:1em;height:1em;object-fit:cover;border-radius:24%;vertical-align:middle;display:inline-block}
 .item .ic .pic,.m .ic .pic{width:1.5em;height:1.5em}
@@ -452,6 +452,7 @@ function monster(m, on){
                   : `<text x="50" y="66" text-anchor="middle" font-family="Jua,sans-serif" font-size="26" fill="#fff">?</text>`;
   return `<svg viewBox="0 0 100 100" aria-hidden="true">${back}${body}${front}${face}</svg>`;
 }
+const bname=b=>(S.badgeNames&&S.badgeNames[b.id])||b.nm;
 function badgeArt(b){ const on=S.badges.includes(b.id); const u=S.img&&S.img['b:'+b.id]; return on&&u?`<img class="pic" src="${u}" alt="">`:monster(b.mon,on); }
 function kartSVG(full=true){
   if(full && S.img && S.img.kartFull) return `<img src="${S.img.kartFull}" alt="" style="width:100%;height:100%;object-fit:contain;object-position:bottom">`;
@@ -468,7 +469,7 @@ function raceHtml(){
   const p=done/total, left=done===total?'오늘의 레이스 우승!':`결승선까지 미션 ${total-done}개!`;
   return `<div class="panel race"><div class="race-top"><h3>오늘의 레이스</h3><span>${left}</span></div>
     <div class="track">${cps.slice(0,-1).map(c=>`<span class="cp ${c.ok?'ok':''}" style="left:calc((100% - 22px) * ${c.at/total})">${esc(c.nm)}</span>`).join('')}
-    <div class="kart" style="left:calc((100% - 118px) * ${p})">${kartSVG()}</div></div></div>`;
+    <div class="kart" style="left:calc((100% - 134px) * ${p})">${kartSVG()}</div></div></div>`;
 }
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1800); }
 function flyAt(x,y,txt){ const f=document.createElement('div'); f.className='fly'; f.textContent=txt; f.style.left=(x-30)+'px'; f.style.top=(y-30)+'px'; document.body.appendChild(f); setTimeout(()=>f.remove(),1000); }
@@ -522,7 +523,7 @@ function renderHome(){
   const sb=(k,ic,nm)=>{const arr=sis[k]||[];return `<button class="sis-btn" data-sis="${k}"><span class="ic">${ic}</span><b>${nm} <span class="num">${arr.length}</span></b><small>${since(arr[arr.length-1])}</small></button>`;};
   const ts=todaySchedule();
   const sched=ts.length?`<ul>${ts.map(x=>`<li class="${x.past?'past':''} ${x.next?'next':''}"><span class="tm num">${x.time}</span><span class="tx">${esc(x.text)}<small>${esc(x.who)}</small></span><span class="cd num">${x.past?'지남':fmtLeft(x.left)}</span></li>`).join('')}</ul>`:`<p class="empty">오늘은 정해진 일정이 없어요. 부모 모드에서 추가할 수 있어요.</p>`;
-  const medals=BADGES.map(b=>`<div class="medal ${S.badges.includes(b.id)?'on':''}" title="${esc(b.nm)}">${badgeArt(b)}</div>`).join('');
+  const medals=BADGES.map(b=>`<div class="medal ${S.badges.includes(b.id)?'on':''}" title="${esc(bname(b))}">${badgeArt(b)}</div>`).join('');
   main.innerHTML=`<section class="screen">
     ${hud()}
     <div class="home-top">
@@ -537,7 +538,7 @@ function renderHome(){
       <div class="panel sched"><h3>오늘 가족 일정</h3>${sched}</div>
       <div class="panel sis"><h3>${esc(S.sisName)} 기록 <span class="label">· 16개월</span></h3>
         <div class="sis-btns">${sb('meal','🍼','식사')}${sb('nap','😴','낮잠')}${sb('diaper','🧷','기저귀')}</div></div>
-      <div class="panel badges-mini"><h3>몬스터 도감 <span class="label num">· ${S.badges.length}/${BADGES.length}</span></h3><div class="badge-row">${medals}</div></div>
+      <div class="panel badges-mini"><h3>배지 도감 <span class="label num">· ${S.badges.length}/${BADGES.length}</span></h3><div class="badge-row">${medals}</div></div>
     </div>
   </section>`;
 }
@@ -567,7 +568,7 @@ function renderReward(){
   const shop=S.rewards.map(r=>`<div class="panel item"><span class="ic">${ico('r:'+r.id,r.ic)}</span><h3>${esc(r.nm)}</h3>
     <div class="price"><span class="chip" style="padding:2px 10px 2px 4px;font-size:18px;border-width:2px"><span class="coin" style="width:24px;height:24px;font-size:12px">₩</span>${r.cost}</span></div>
     <button class="hold" data-hold="${r.id}" ${S.coins<r.cost?'disabled':''}><span class="fill"></span><span>${S.coins<r.cost?`${r.cost-S.coins}코인 더 모으기`:'부모님이 꾹 눌러서 교환'}</span></button></div>`).join('');
-  const bd=BADGES.map(b=>{const on=S.badges.includes(b.id);return `<div class="panel bd ${on?'mon-card':''}"><div class="medal ${on?'on':''}">${badgeArt(b)}</div><b>${on?esc(b.nm):'???'}</b><small>${esc(b.desc)}</small></div>`;}).join('');
+  const bd=BADGES.map(b=>{const on=S.badges.includes(b.id);return `<div class="panel bd ${on?'mon-card':''}"><div class="medal ${on?'on':''}">${badgeArt(b)}</div><b>${on?esc(bname(b)):'???'}</b><small>${esc(b.desc)}</small></div>`;}).join('');
   const log=S.redeemed.slice(-20).reverse().map(x=>`<li><span>${esc(x.nm)}</span><span class="num">${x.date}</span></li>`).join('') || '<li><span>아직 교환한 보상이 없어</span></li>';
   const L=level();
   main.innerHTML=`<section class="screen">
@@ -576,7 +577,7 @@ function renderReward(){
       <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div style="flex:1;height:18px;border-radius:9px;background:var(--mute);overflow:hidden"><div style="width:${L.into/2}%;height:100%;background:var(--violet)"></div></div><b class="num">${L.into}/200 XP</b></div></div>
     <h2 style="font-size:30px">보상 상점</h2>
     <div class="shop">${shop}</div>
-    <h2 style="font-size:30px">몬스터 도감</h2>
+    <h2 style="font-size:30px">배지 도감</h2>
     <div class="badges">${bd}</div>
     <div class="panel"><h3 style="font-size:22px">교환 기록</h3><ul class="log">${log}</ul></div>
   </section>`;
@@ -624,7 +625,7 @@ function renderParent(){
       <p class="note">아이가 좋아하는 캐릭터 그림이나 사진을 넣을 수 있어요. 사진은 이 태블릿 안에만 저장되고 인터넷에 올라가지 않아요. 몬스터 사진은 아이가 그 몬스터를 얻은 뒤에 보여요. 사진을 지우려면 사진을 한 번 더 누르세요.</p>
       <div class="picgrid"><div class="picitem"><div class="medal on" style="border-radius:16px">${kartSVG(false)}</div><b>레이서 얼굴</b>${picBtn('kart')}</div>
       <div class="picitem"><div class="medal on" style="border-radius:16px;background:#3B3F58">${kartSVG()}</div><b>카트 통째로</b>${picBtn('kartFull')}</div>
-      ${BADGES.map(b=>`<div class="picitem"><div class="medal on">${monster(b.mon,true)}</div><b>${esc(b.nm)}</b>${picBtn('b:'+b.id)}</div>`).join('')}</div>
+      ${BADGES.map(b=>`<div class="picitem"><div class="medal on">${monster(b.mon,true)}</div><b>${esc(bname(b))}</b>${picBtn('b:'+b.id)}</div>`).join('')}</div>
       <p class="note">미션과 보상 사진은 위쪽 편집 칸의 "사진"에서 넣어요.</p></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">파일 가져오기·내보내기</h3>
       <p class="note">꾸미기 파일(사진 모음)이나 백업 파일을 가져오면 이 탭에 바로 적용돼요. 백업 파일을 가져오면 지금 기록이 그 파일 내용으로 바뀌어요.</p>
@@ -678,6 +679,7 @@ function renderParent(){
       if(!j||j.app!=='familyQuest'){ $('#ioMsg').textContent='우리집 퀘스트 보드 파일이 아니에요.'; return; }
       if(j.kind==='backup' && j.data && Array.isArray(j.data.blocks)){ S=Object.assign(blank(), j.data); if(!S.img) S.img={}; save(); toast('백업을 불러왔어요'); renderParent(); return; }
       if(j.kind==='pack' && j.img){ collect(); let n=0; for(const [k,v] of Object.entries(j.img)){ if(/^(kart|m:|r:|b:)/.test(k) && typeof v==='string' && v.startsWith('data:image/')){ S.img[k]=v; n++; } }
+        if(j.badgeNames && typeof j.badgeNames==='object'){ S.badgeNames=S.badgeNames||{}; for(const [k,v] of Object.entries(j.badgeNames)) if(BADGES.some(b=>b.id===k) && typeof v==='string') S.badgeNames[k]=v.slice(0,20); }
         if(j.kidName) S.kidName=j.kidName; save(); toast(`사진 ${n}장을 넣었어요`); renderParent(); return; }
       $('#ioMsg').textContent='이 파일에는 가져올 내용이 없어요.'; }; rd.readAsText(file); }; f.click(); };
   const collect=()=>{ collectME(); S.blocks.forEach(b=>{ const n=$('#n_'+b.id); if(n) b.name=n.value.trim()||'시간대'; const st=$('#s_'+b.id), en=$('#e_'+b.id); if(st&&st.value) b.start=st.value; if(en&&en.value) b.end=en.value; }); S.schedule.forEach((x,i)=>{ x.time=$('#st_'+i).value; x.who=$('#sw_'+i).value.trim(); x.text=$('#sx_'+i).value.trim(); }); };
@@ -717,7 +719,7 @@ function complete(id, el){
   const fresh=checkBadges(); save(); render();
   if(chest) setTimeout(()=>modal('🧰','보물상자 획득!',`${b.name}을(를) 시간 안에 모두 끝냈어! 보너스 +${CHEST} 코인`),400);
   else if(ms(b,new Date().getDay()).every(x=>day.done[x.id])) setTimeout(()=>modal('👍','다 했어!',`${b.name} 완료. 다음엔 ${b.end} 전에 끝내서 보물상자를 열어 보자!`),400);
-  if(fresh.length) setTimeout(()=>{const bd=BADGES.find(x=>x.id===fresh[0]); if(!$('#modalRoot').innerHTML) modal(badgeArt(bd),'새 몬스터 '+bd.nm+'!',bd.desc+' 성공으로 도감에 들어왔어.'); else toast('새 몬스터: '+bd.nm);},chest?1200:500);
+  if(fresh.length) setTimeout(()=>{const bd=BADGES.find(x=>x.id===fresh[0]); if(!$('#modalRoot').innerHTML) modal(badgeArt(bd),'새 배지 '+bname(bd)+'!',bd.desc+' 성공으로 도감에 들어왔어.'); else toast('새 배지: '+bname(bd));},chest?1200:500);
 }
 function undo(id){
   const day=today(); const d=day.done[id]; if(!d) return;
