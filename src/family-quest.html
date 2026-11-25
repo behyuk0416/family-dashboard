@@ -224,6 +224,39 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance
 .m .stamp.late{color:var(--gold-d);border-color:var(--gold-d)}
 .undo{font-size:13px;font-weight:800;color:var(--ink2);text-decoration:underline;padding:4px 8px}
 
+.m.fail{background:#FFF1F1;border-color:#F4AFAF;box-shadow:0 7px 0 #E58F8F;cursor:not-allowed}
+.m.fail .ic{opacity:.3}
+.m.fail .nm{color:#B04A4A}
+.m .stamp.fail{color:var(--berry-d);border-color:var(--berry-d)}
+.m .lk{position:absolute;bottom:10px;right:12px;font-size:13px;font-weight:800;color:var(--ink2)}
+.m.fc .chk.x{background:var(--berry);box-shadow:0 5px 0 var(--berry-d)}
+.chip{white-space:nowrap}
+.chip.pen .coin{background:#555;border-color:#333;color:#fff}
+.pen{display:flex;flex-direction:column;gap:12px}
+.pen-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.pen-h h3{font-size:24px}
+.pen-h span{font-weight:800;color:var(--berry-d)}
+.pen-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.pcard{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto auto;column-gap:14px;align-items:center;text-align:left;padding:14px 18px;border-radius:20px;background:#FFF4F2;border:3px solid #F6B6AE;box-shadow:0 6px 0 #E99A90;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none}
+.pcard .fill{position:absolute;inset:0;width:0;background:rgba(255,93,122,.22)}
+.pcard>*:not(.fill){position:relative}
+.pcard .ic{grid-row:1/4;font-size:52px;line-height:1}
+.pcard b{font-family:var(--f-display);font-size:24px;line-height:1.2}
+.pcard .pp{font-weight:800;color:var(--berry-d);font-size:17px}
+.pcard small{font-weight:700;color:var(--ink2);font-size:13px}
+.rec{display:flex;flex-direction:column;gap:6px}
+.rec .rh{font-family:var(--f-display);font-size:19px;margin-top:6px}
+.rec .rr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 10px;border-radius:12px;background:var(--mute)}
+.rec .rr .rn{flex:1;min-width:160px;font-weight:700}
+.stb{min-height:40px;padding:0 12px;border-radius:10px;border:2px solid var(--line);background:var(--card);font-weight:800;font-size:15px;color:var(--ink2)}
+.stb[aria-pressed="true"].ok{background:var(--grass);border-color:var(--grass-d);color:#fff}
+.stb[aria-pressed="true"].late{background:var(--gold);border-color:var(--gold-d);color:var(--ink)}
+.stb[aria-pressed="true"].fail{background:var(--berry);border-color:var(--berry-d);color:#fff}
+.stb[aria-pressed="true"].wait{background:var(--violet);border-color:var(--violet-d);color:#fff}
+.dchips{display:flex;gap:6px;flex-wrap:wrap}
+.plog{display:flex;flex-direction:column;gap:6px}
+.plog .rr{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;background:var(--mute)}
+.plog .rr span{flex:1}
 /* rewards */
 .shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
 .item{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
@@ -367,6 +400,7 @@ const BADGES = [
 
 // ---------- state ----------
 function blank(){return {kidName:'모험가', sisName:'막내', coins:0, xp:0, blocks:JSON.parse(JSON.stringify(DEFAULT_BLOCKS)), days:{}, sis:{}, redeemed:[], badges:[], rewards:JSON.parse(JSON.stringify(REWARDS)), img:{}, todos:[{id:'t1',text:'분리수거 (예시)'},{id:'t2',text:'막내 영양제 (예시)'},{id:'t3',text:'아들 알림장 확인'}], night:{on:true,start:'22:00',end:'07:00'}, todoDone:{},
+  penalties:[{id:'p1',ic:'🙉',nm:'불렀을 때 대답하지 않기',pt:1,coin:10},{id:'p2',ic:'👵',nm:'조부모님 말씀에 큰소리치거나 화내기',pt:2,coin:20}], penLog:[],
   schedule:[
     {id:'s1', time:'19:00', who:'아빠', text:'퇴근해서 집 도착 (예시)', days:[1,2,3,4,5]},
     {id:'s2', time:'16:00', who:'아들', text:'학원 가는 날 (예시)', days:[2,4]},
@@ -454,14 +488,14 @@ function fmtMin(m){ return m>=60?`${Math.floor(m/60)}시간 ${m%60}분`:`${m}분
 function focusHtml(cb){
   const wd=new Date().getDay(), day=today(), st=blockStatus(cb), list=ms(cb,wd);
   const p=st.done/st.total, goal=(cb.goal||'').trim()||`${cb.name} 끝`;
-  const nextId=(list.find(m=>!day.done[m.id])||{}).id;
+  const nextId=(list.find(m=>mState(day,cb,m)==='wait')||{}).id;
   const band=`<div class="panel goband"><div class="gl"><div class="label">${esc(goal)}까지</div><div class="big"><b class="num ${st.left<=10?'hurry':''}">${fmtMin(st.left)}</b> 남았어요</div></div>
     <div class="gtrack"><div class="gfill" style="width:${p*100}%"></div><div class="gkart" style="left:calc((100% - 104px) * ${p})">${kartSVG()}</div>
       <div class="bubble">${st.done===st.total?'다 했어! 출발!':`${st.total-st.done}개 남았어! 힘내!`}</div></div>
     <div class="gend"><span>${/학교|유치원|등원|등교/.test(goal)?'🏫':'🏁'}</span><small class="num">${esc(goal)} ${cb.end}</small></div></div>`;
-  const cards=list.map((m,i)=>{ const d=day.done[m.id]; return `<div class="m fc ${d?'done':''} ${m.id===nextId?'now':''}" role="button" tabindex="0" data-m="${m.id}">
+  const cards=list.map((m,i)=>{ const d=day.done[m.id], f=mState(day,cb,m)==='fail'; return `<div class="m fc ${d?'done':''} ${f?'fail':''} ${m.id===nextId?'now':''}" role="button" tabindex="0" data-m="${m.id}">
     <span class="no num">${i+1}</span>${m.id===nextId?'<span class="tag">같이 하자!</span>':''}
-    <span class="ic">${ico('m:'+m.id,m.ic)}</span>${d?'<span class="chk">✓</span>':''}<span class="nm">${esc(m.nm)}</span></div>`; }).join('');
+    <span class="ic">${ico('m:'+m.id,m.ic)}</span>${d?'<span class="chk">✓</span>':''}${f?'<span class="chk x">✕</span>':''}<span class="nm">${esc(m.nm)}</span></div>`; }).join('');
   return `${band}<div class="fcards">${cards}</div>`;
 }
 
@@ -481,7 +515,32 @@ const pad = n => String(n).padStart(2,'0');
 const dkey = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const toMin = s => { const [h,m]=s.split(':').map(Number); return h*60+m; };
 const nowMin = () => { const d=new Date(); return d.getHours()*60+d.getMinutes(); };
-function today(){ const k=dkey(new Date()); if(!S.days[k]) S.days[k]={done:{},chest:{}}; return S.days[k]; }
+function dayOf(k){ const d=S.days[k]||(S.days[k]={done:{},chest:{}}); if(!d.fail) d.fail={}; if(!d.lock) d.lock={}; return d; }
+function today(){ return dayOf(dkey(new Date())); }
+// mission state: ok (on time) / late (done after time) / fail (time passed, or parent marked) / wait
+function mState(day,b,m,isToday=true){
+  const d=day.done[m.id]; if(d) return d.onTime?'ok':'late';
+  if(day.fail&&day.fail[m.id]) return 'fail';
+  if(!isToday || nowMin()>toMin(b.end)) return 'fail';
+  return 'wait';
+}
+const blockOf=id=>S.blocks.find(x=>x.missions.some(m=>m.id===id));
+// parent sets a mission's result for a given day; it is then locked against the child
+function parentSet(k,id,st){
+  const day=dayOf(k), b=blockOf(id); if(!b) return; const m=b.missions.find(x=>x.id===id);
+  const old=day.done[id]; let delta=0;
+  if(old){ delta-=old.gain; delete day.done[id]; }
+  delete day.fail[id];
+  if(st==='ok'||st==='late'){ const gain=m.pt+(st==='ok'?ON_TIME_BONUS:0); day.done[id]={t:old?old.t:Date.now(), onTime:st==='ok', gain, by:'parent'}; delta+=gain; }
+  if(st==='fail') day.fail[id]=1;
+  if(st==='wait') delete day.lock[id]; else day.lock[id]=1;
+  const list=ms(b,wdOf(k)); const all=list.every(x=>day.done[x.id]&&day.done[x.id].onTime);
+  if(all && !day.chest[b.id]){ day.chest[b.id]=true; delta+=CHEST; }
+  if(!all && day.chest[b.id]){ delete day.chest[b.id]; delta-=CHEST; }
+  S.coins=Math.max(0,S.coins+delta); S.xp=Math.max(0,S.xp+delta); save();
+}
+const penToday=()=>{ const k=dkey(new Date()); return S.penLog.filter(x=>x.d===k).reduce((a,x)=>a+x.pt,0); };
+const penWeek=()=>{ const t=Date.now()-6*864e5; const k=dkey(new Date(t)); return S.penLog.filter(x=>x.d>=k).reduce((a,x)=>a+x.pt,0); };
 function level(){ const lv=Math.floor(S.xp/200); return {lv:lv+1, title:LEVELS[Math.min(lv,LEVELS.length-1)], into:S.xp%200}; }
 
 function blockStatus(b, day=today(), isToday=true){
@@ -493,7 +552,7 @@ function blockStatus(b, day=today(), isToday=true){
   if(n<=e) return {done,total,st:'active', left:e-n};
   return {done,total,st:'missed'};
 }
-const ST_LABEL={upcoming:'곧 시작', active:'지금 진행 중', clear:'시간 안에 클리어!', late:'완료', missed:'시간 지남'};
+const ST_LABEL={upcoming:'곧 시작', active:'지금 진행 중', clear:'시간 안에 클리어!', late:'완료', missed:'실패 있음'};
 function currentBlock(){
   const n=nowMin();
   const tb=todayBlocks();
@@ -596,6 +655,7 @@ function hud(){
     <div class="chip"><span class="coin">₩</span><span class="num">${S.coins}</span>코인</div>
     <div class="chip lv"><span class="coin">${L.lv}</span>${esc(L.title)}</div>
     <div class="chip fire"><span class="coin">${streak()}</span>일 연속</div>
+    ${penToday()?`<div class="chip pen"><span class="coin">${penToday()}</span>오늘 벌점</div>`:''}
   </div>`;
 }
 
@@ -640,6 +700,8 @@ function renderHome(){
     </div>
     ${focus?focusHtml(cb):raceHtml()}
     ${focus?'':`<div class="timeline">${tl}</div>`}
+    ${S.penalties.length?`<div class="panel pen"><div class="pen-h"><h3>약속 카드</h3><span class="num">오늘 벌점 ${penToday()}점 · 이번 주 ${penWeek()}점</span></div>
+      <div class="pen-cards">${S.penalties.map(x=>{ const n=S.penLog.filter(y=>y.id===x.id&&y.d===dkey(new Date())).length; return `<button class="pcard" data-pen="${x.id}"><span class="fill"></span><span class="ic">${esc(x.ic)}</span><b>${esc(x.nm)}</b><span class="pp num">벌점 ${x.pt}점${x.coin?` · 코인 −${x.coin}`:''}</span><small>부모님이 꾹 누르면 기록돼요${n?` · 오늘 ${n}번`:''}</small></button>`; }).join('')}</div></div>`:''}
     <div class="home-bottom">
       <div class="panel sched"><h3>오늘 가족 일정</h3>${sched}
         ${S.todos.length?`<div class="sub-h">가족 할 일</div><div class="todos">${todoList().map(t=>`<button class="todo ${t.on?'on':''}" data-todo="${t.id}"><span class="bx">${t.on?'✓':''}</span><span>${esc(t.text)}</span></button>`).join('')}</div>`:''}</div>
@@ -658,10 +720,12 @@ function renderQuest(){
   const b=tb.find(x=>x.id===questTab)||tb[0];
   const st=blockStatus(b);
   const tabs=tb.map(x=>`<button class="tab" role="tab" aria-selected="${x.id===b.id}" data-tab="${x.id}"><b>${esc(x.name)}</b><span class="num">${x.start} – ${x.end} · ${blockStatus(x).done}/${blockStatus(x).total}</span></button>`).join('');
-  const cards=ms(b,new Date().getDay()).map(m=>{const d=day.done[m.id];return `<div class="m ${d?'done':''}" role="button" tabindex="0" data-m="${m.id}">
-      <span class="ic">${ico('m:'+m.id,m.ic)}</span><span class="nm">${esc(m.nm)}</span><span class="pt">+${m.pt} 코인${d?'':` · 제시간 +${ON_TIME_BONUS}`}</span>
-      ${d?`<span class="stamp ${d.onTime?'':'late'}">${d.onTime?'성공!':'완료'}</span><button class="undo" data-undo="${m.id}">되돌리기</button>`:''}</div>`;}).join('');
-  const msg = st.st==='active' ? `${b.end}까지 모두 끝내면 보물상자 +${CHEST} 코인!` : st.st==='upcoming' ? `${b.start}에 시작해. 미리 해도 괜찮아!` : st.st==='clear'?'시간 안에 클리어! 보물상자를 열었어.':st.st==='late'?'다 했어! 다음엔 시간 안에 도전!':'시간은 지났지만 지금 해도 코인을 받을 수 있어.';
+  const ended=nowMin()>toMin(b.end);
+  const cards=ms(b,new Date().getDay()).map(m=>{const d=day.done[m.id], s=mState(day,b,m), lk=day.lock[m.id];return `<div class="m ${d?'done':''} ${s==='fail'?'fail':''}" role="button" tabindex="0" data-m="${m.id}">
+      <span class="ic">${ico('m:'+m.id,m.ic)}</span><span class="nm">${esc(m.nm)}</span><span class="pt">${s==='fail'?'코인 없음':`+${m.pt} 코인${d?'':` · 제시간 +${ON_TIME_BONUS}`}`}</span>
+      ${d?`<span class="stamp ${d.onTime?'':'late'}">${d.onTime?'성공!':'완료'}</span>`:''}${s==='fail'?'<span class="stamp fail">실패</span>':''}
+      ${d&&!lk&&!ended?`<button class="undo" data-undo="${m.id}">되돌리기</button>`:''}${lk?'<span class="lk">🔒 부모님 확인</span>':''}</div>`;}).join('');
+  const msg = st.st==='active' ? `${b.end}까지 모두 끝내면 보물상자 +${CHEST} 코인!` : st.st==='upcoming' ? `${b.start}에 시작해. 미리 해도 괜찮아!` : st.st==='clear'?'시간 안에 클리어! 보물상자를 열었어.':st.st==='late'?'다 했어! 다음엔 시간 안에 도전!':'시간이 지나서 못 한 미션은 실패로 기록됐어. 다음엔 시간 안에 도전!';
   main.innerHTML=`<section class="screen">
     ${hud()}
     <div class="tabs" role="tablist">${tabs}</div>
@@ -690,7 +754,7 @@ function renderReward(){
   </section>`;
 }
 
-let parentOk=false, pBlock=null;
+let parentOk=false, pBlock=null, recDay=null;
 function picBtn(k){ const u=S.img&&S.img[k]; return `<button class="picbtn" data-pic="${k}" aria-label="사진">${u?`<img src="${u}" alt="">`:'사진'}</button>`; }
 function renderParent(){
   if(!parentOk){
@@ -704,8 +768,23 @@ function renderParent(){
   }
   const pb=S.blocks.find(b=>b.id===pBlock)||S.blocks[0]; pBlock=pb.id;
   const times=S.blocks.map(b=>`<div class="field sitem"><div class="trow"><input id="n_${b.id}" value="${esc(b.name)}" aria-label="시간대 이름" style="font-weight:800"><button class="btn danger" data-bdel="${b.id}">삭제</button></div><span class="label">나오는 요일 · <span id="bl_${b.id}">${dayLabel(b.days)}</span></span><div class="days" style="margin-bottom:4px">${[1,2,3,4,5,6,0].map(w=>`<button class="day" data-bday="${b.id}:${w}" aria-pressed="${b.days.includes(w)}">${'일월화수목금토'[w]}</button>`).join('')}</div><div class="trow"><input type="time" id="s_${b.id}" value="${b.start}"><span>–</span><input type="time" id="e_${b.id}" value="${b.end}"></div><input id="g_${b.id}" value="${esc(b.goal||'')}" placeholder="끝나는 시각 이름 (예: 학교 출발)" aria-label="끝나는 시각 이름"></div>`).join('');
+  const rk=recDay||dkey(new Date()); const rday=dayOf(rk), rwd=wdOf(rk), isT=rk===dkey(new Date());
+  const dchips=[...Array(7)].map((_,i)=>{ const d=new Date(); d.setDate(d.getDate()-i); const k=dkey(d); return `<button class="day" style="width:auto;padding:0 12px" data-recday="${k}" aria-pressed="${k===rk}">${i===0?'오늘':i===1?'어제':`${d.getMonth()+1}/${d.getDate()}`}</button>`; }).join('');
+  const SL={ok:'성공',late:'늦게 완료',fail:'실패',wait:'대기'};
+  const recs=blocksFor(rwd).map(b=>`<div class="rh">${esc(b.name)} <span class="label num">${b.start}–${b.end}</span></div>${ms(b,rwd).map(m=>{ const s=mState(rday,b,m,isT); const can=isT&&nowMin()<=toMin(b.end);
+    return `<div class="rr"><span class="rn">${esc(m.ic)} ${esc(m.nm)}${rday.lock[m.id]?' 🔒':''}</span>${['ok','late','fail'].concat(can?['wait']:[]).map(x=>`<button class="stb ${x}" data-rec="${rk}|${m.id}|${x}" aria-pressed="${s===x}">${SL[x]}</button>`).join('')}</div>`; }).join('')}`).join('') || '<p class="note">이 날은 미션이 없어요.</p>';
+  const plog=S.penLog.slice(-15).map((x,i,a)=>({x,i:S.penLog.length-a.length+i})).reverse().map(({x,i})=>`<div class="rr"><span>${esc(x.ic)} ${esc(x.nm)} · 벌점 ${x.pt}점${x.coin?` · −${x.coin}코인`:''}</span><span class="num label" style="flex:none">${x.d.slice(5).replace('-','/')} ${pad(new Date(x.t).getHours())}:${pad(new Date(x.t).getMinutes())}</span><button class="btn danger" data-pundo="${i}">취소</button></div>`).join('') || '<p class="note">아직 벌점 기록이 없어요.</p>';
   main.innerHTML=`<section class="screen">
     <h2 style="font-size:30px">부모 모드</h2>
+    <div class="panel" style="display:flex;flex-direction:column;gap:12px"><h3 style="font-size:22px">미션 기록 확인</h3>
+      <p class="note">시간이 지나도록 하지 않은 미션은 자동으로 <b>실패</b>가 돼요. 여기서 부모님이 성공·늦게 완료·실패로 바꿀 수 있고, 부모님이 정한 기록(🔒)은 아이가 바꿀 수 없어요. 코인과 보물상자도 함께 다시 계산돼요.</p>
+      <div class="dchips">${dchips}</div><div class="rec">${recs}</div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:12px"><h3 style="font-size:22px">약속 카드 (벌점)</h3>
+      <p class="note">홈 화면의 약속 카드를 부모님이 1.5초 꾹 누르면 벌점이 기록되고 코인이 빠져요. 잘못 눌렀으면 아래 기록에서 취소하세요(코인도 돌려줘요).</p>
+      <div class="erow ehead" style="grid-template-columns:64px 1fr 90px 90px auto"><span>아이콘</span><span>약속 내용</span><span>벌점</span><span>코인 차감</span><span></span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">${S.penalties.map((x,i)=>`<div class="erow" style="grid-template-columns:64px 1fr 90px 90px auto"><input class="ic" id="pi_${i}" value="${esc(x.ic)}" maxlength="4" aria-label="아이콘"><input id="pn_${i}" value="${esc(x.nm)}" aria-label="약속 내용"><input id="pp_${i}" type="number" inputmode="numeric" min="1" max="99" value="${x.pt}" aria-label="벌점"><input id="pc_${i}" type="number" inputmode="numeric" min="0" max="999" value="${x.coin}" aria-label="코인 차감"><button class="btn danger" data-pdel="${i}">삭제</button></div>`).join('')}</div>
+      <div class="trow"><button class="btn" id="penAdd">+ 약속 카드 추가</button></div>
+      <h3 style="font-size:18px">최근 벌점 기록 <span class="label num">· 오늘 ${penToday()}점 · 이번 주 ${penWeek()}점</span></h3><div class="plog">${plog}</div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">요일별 계획표</h3>
       <p class="note">한 주 동안 요일마다 아이에게 어떤 미션과 일정이 나오는지 보여 줘요. 시간대를 누르면 아래에서 그 미션을 고칠 수 있어요.</p>
       <div class="week">${[1,2,3,4,5,6,0].map(w=>{ const bs=blocksFor(w); const sc=S.schedule.filter(x=>x.time&&x.days.includes(w)).sort((a,b)=>toMin(a.time)-toMin(b.time));
@@ -716,7 +795,7 @@ function renderParent(){
       <div class="form"><div class="field"><label class="label" for="kidName">아들 이름(호칭)</label><input id="kidName" value="${esc(S.kidName)}"></div>
       <div class="field"><label class="label" for="sisName">딸 이름(호칭)</label><input id="sisName" value="${esc(S.sisName)}"></div></div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">시간대와 요일</h3><p class="note">요일을 눌러 그 시간대 미션이 나오는 날을 정해요. 요일마다 시간이 다르면 시간대를 하나 더 만들어 요일을 나눠 주세요.</p><div class="form">${times}</div><div class="trow" style="flex-wrap:wrap"><button class="btn" id="bAdd">+ 시간대 추가</button><span class="note">예: 화·목 학원 가는 날만 쓰는 "학원 다녀와서" 시간대</span></div>
-      <p class="note">미션을 시간 안에 모두 끝내면 미션마다 +${ON_TIME_BONUS} 코인, 시간대를 다 끝내면 보물상자 +${CHEST} 코인을 줘요. 시간이 지나도 기본 코인은 받아요.</p></div>
+      <p class="note">미션을 시간 안에 모두 끝내면 미션마다 +${ON_TIME_BONUS} 코인, 시간대를 다 끝내면 보물상자 +${CHEST} 코인을 줘요. 시간이 지나도록 하지 않은 미션은 실패로 기록되고 코인이 없어요.</p></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:14px"><h3 style="font-size:22px">미션 편집</h3>
       <p class="note">시간대를 고른 뒤 미션 이름, 아이콘(이모지), 코인을 바꾸세요. 시간 안에 하면 +${ON_TIME_BONUS} 코인이 자동으로 더해져요.</p>
       <div class="tabs">${S.blocks.map(b=>`<button class="tab" aria-selected="${b.id===pb.id}" data-pblock="${b.id}"><b style="font-size:18px">${esc(b.name)}</b><span>${b.days.length?dayLabel(b.days):'요일 없음'} · ${b.missions.length}개</span></button>`).join('')}</div>
@@ -766,11 +845,17 @@ function renderParent(){
   main.querySelectorAll('[data-bday]').forEach(x=>x.onclick=()=>{ const [id,w]=x.dataset.bday.split(':'); const b=S.blocks.find(y=>y.id===id); const k=b.days.indexOf(+w); k<0?b.days.push(+w):b.days.splice(k,1); x.setAttribute('aria-pressed',k<0); $('#bl_'+id).textContent=b.days.length?dayLabel(b.days):'쉬는 시간대'; save(); questTab=null; });
   const collectME=()=>{
     pb.missions.forEach((m,i)=>{ m.ic=$('#mi_'+i).value.trim()||'⭐'; m.nm=$('#mn_'+i).value.trim()||'새 미션'; m.pt=Math.max(0,Math.min(200,parseInt($('#mp_'+i).value)||0)); });
+    S.penalties.forEach((x,i)=>{ x.ic=$('#pi_'+i).value.trim()||'⚠️'; x.nm=$('#pn_'+i).value.trim()||'약속'; x.pt=Math.max(1,Math.min(99,parseInt($('#pp_'+i).value)||1)); x.coin=Math.max(0,Math.min(999,parseInt($('#pc_'+i).value)||0)); });
     S.rewards.forEach((r,i)=>{ r.ic=$('#ri_'+i).value.trim()||'🎁'; r.nm=$('#rn_'+i).value.trim()||'새 보상'; r.cost=Math.max(1,parseInt($('#rc_'+i).value)||1); });
   };
   main.querySelectorAll('[data-pblock]').forEach(b=>b.onclick=()=>{ collect(); pBlock=b.dataset.pblock; renderParent(); });
   main.querySelectorAll('[data-mdel]').forEach(b=>b.onclick=()=>{ collect(); pb.missions.splice(+b.dataset.mdel,1); save(); renderParent(); });
   main.querySelectorAll('[data-rdel]').forEach(b=>b.onclick=()=>{ collect(); S.rewards.splice(+b.dataset.rdel,1); save(); renderParent(); });
+  main.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{ collect(); S.penalties.splice(+b.dataset.pdel,1); save(); renderParent(); });
+  $('#penAdd').onclick=()=>{ collect(); S.penalties.push({id:'p'+Date.now(), ic:'⚠️', nm:'', pt:1, coin:10}); renderParent(); $('#pn_'+(S.penalties.length-1))?.focus(); };
+  main.querySelectorAll('[data-pundo]').forEach(b=>b.onclick=()=>{ collect(); const x=S.penLog[+b.dataset.pundo]; if(!x) return; S.coins+=x.coin||0; S.penLog.splice(+b.dataset.pundo,1); save(); toast('벌점을 취소했어요'); renderParent(); });
+  main.querySelectorAll('[data-recday]').forEach(b=>b.onclick=()=>{ collect(); recDay=b.dataset.recday; renderParent(); });
+  main.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>{ collect(); const [k,id,st]=b.dataset.rec.split('|'); parentSet(k,id,st); const y=main.scrollTop; renderParent(); main.scrollTop=y; toast('기록을 바꿨어요'); });
   $('#mAdd').onclick=()=>{ collect(); pb.missions.push({id:'m'+Date.now(), ic:'⭐', nm:'', pt:10}); renderParent(); $('#mn_'+(pb.missions.length-1))?.focus(); };
   $('#rAdd').onclick=()=>{ collect(); S.rewards.push({id:'r'+Date.now(), ic:'🎁', nm:'', cost:50}); renderParent(); $('#rn_'+(S.rewards.length-1))?.focus(); };
   main.querySelectorAll('[data-mday]').forEach(x=>x.onclick=()=>{ const [i,w]=x.dataset.mday.split(':').map(Number); const m=pb.missions[i]; if(!m.days) m.days=pb.days.slice(); const k=m.days.indexOf(w); k<0?m.days.push(w):m.days.splice(k,1); if(pb.days.every(d=>m.days.includes(d))) delete m.days; x.setAttribute('aria-pressed',k<0); save(); });
@@ -817,7 +902,7 @@ function renderParent(){
   main.onchange=e=>{ if(view==='parent' && parentOk && e.target.matches('input')) saveAll(); };
   main.querySelectorAll('[data-adj]').forEach(x=>x.onclick=()=>{S.coins=Math.max(0,S.coins+Number(x.dataset.adj)); if(Number(x.dataset.adj)>0) S.xp+=Number(x.dataset.adj); save(); renderParent();});
   const twoStep=(btn,fn)=>{ btn.onclick=()=>{ if(btn.dataset.arm){fn();} else {btn.dataset.arm=1; btn.textContent='한 번 더 누르면 실행'; setTimeout(()=>{delete btn.dataset.arm;renderParent();},3000);} }; };
-  twoStep($('#pResetDay'),()=>{S.days[dkey(new Date())]={done:{},chest:{}};save();toast('오늘 체크를 초기화했어요');renderParent();});
+  twoStep($('#pResetDay'),()=>{S.days[dkey(new Date())]={done:{},chest:{},fail:{},lock:{}};save();toast('오늘 체크를 초기화했어요');renderParent();});
   twoStep($('#pResetAll'),()=>{S=blank();save();toast('전체 초기화했어요');renderParent();});
   $('#pLock').onclick=()=>{parentOk=false;go('home');};
 }
@@ -827,6 +912,7 @@ function complete(id, el){
   const day=today();
   const b=S.blocks.find(x=>x.missions.some(m=>m.id===id)); const m=b.missions.find(x=>x.id===id);
   if(day.done[id]) return;
+  if(day.lock[id] || mState(day,b,m)==='fail'){ ding(false); toast(day.lock[id]?'부모님이 정한 기록이라 바꿀 수 없어':'시간이 지나서 실패로 기록됐어. 부모님께 말씀드려 줘'); return; }
   const n=nowMin(); const onTime=n<=toMin(b.end);
   const gain=m.pt+(onTime?ON_TIME_BONUS:0);
   day.done[id]={t:Date.now(), onTime, gain};
@@ -843,12 +929,28 @@ function complete(id, el){
 function undo(id){
   const day=today(); const d=day.done[id]; if(!d) return;
   const b=S.blocks.find(x=>x.missions.some(m=>m.id===id));
+  if(day.lock[id] || nowMin()>toMin(b.end)){ toast('이제는 부모님만 바꿀 수 있어'); return; }
   S.coins=Math.max(0,S.coins-d.gain); S.xp=Math.max(0,S.xp-d.gain);
   if(day.chest[b.id]){ delete day.chest[b.id]; S.coins=Math.max(0,S.coins-CHEST); S.xp=Math.max(0,S.xp-CHEST); }
   delete day.done[id]; ding(false); save(); render(); toast('되돌렸어요');
 }
 function sisLog(k){ const sk=dkey(new Date()); S.sis[sk]=S.sis[sk]||{}; (S.sis[sk][k]=S.sis[sk][k]||[]).push(Date.now()); save(); render(); toast('기록했어요'); }
 
+// hold-to-confirm for penalty cards
+main.addEventListener('pointerdown',e=>{
+  const h=e.target.closest('[data-pen]'); if(!h) return;
+  const fill=h.querySelector('.fill'); const t0=performance.now(); let raf;
+  const step=now=>{ const p=Math.min(1,(now-t0)/1500); fill.style.width=(p*100)+'%';
+    if(p>=1){ raf=null; const x=S.penalties.find(y=>y.id===h.dataset.pen); if(!x) return;
+      S.penLog.push({id:x.id, nm:x.nm, ic:x.ic, pt:x.pt, coin:Math.min(x.coin,S.coins), d:dkey(new Date()), t:Date.now()}); S.coins=Math.max(0,S.coins-x.coin);
+      if(S.penLog.length>300) S.penLog=S.penLog.slice(-300); save(); ding(false); render();
+      modal(esc(x.ic),`벌점 ${x.pt}점`,`${x.nm}. 약속을 지키면 다시 멋지게 코인을 모을 수 있어.`,'알겠어요'); return; }
+    raf=requestAnimationFrame(step); };
+  raf=requestAnimationFrame(step);
+  const stop=()=>{ if(raf){cancelAnimationFrame(raf);raf=null;fill.style.width='0';} ['pointerup','pointerleave','pointercancel'].forEach(ev=>h.removeEventListener(ev,stop)); };
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>h.addEventListener(ev,stop));
+});
+main.addEventListener('contextmenu',e=>{ if(e.target.closest('[data-pen]')) e.preventDefault(); });
 // hold-to-confirm for rewards
 let holdT=null;
 main.addEventListener('pointerdown',e=>{
